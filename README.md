@@ -52,6 +52,11 @@ package to be installed.
 model-based methods of selecting a subset of features based on the model's
 feature importance scores or coefficients.
 
+### Planned methods
+
+- `step_select_fstatistic` using ANOVA for classification and r2 converted to the f-statistic for regression
+- `step_select_chi2` for classifications
+
 ## Notes
 
 The focus of `colino` is to provide extra recipes for filter-based 
