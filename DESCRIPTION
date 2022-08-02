@@ -3,14 +3,14 @@ Type: Package
 Title: Recipes Steps for Supervised Filter-Based Feature Selection
 Version: 0.0.1
 Authors@R: 
-    person(given = "Steven",
+    c(person(given = "Steven",
            family = "Pawley",
            role = c("aut", "cre"),
-           email = "dr.stevenpawley@gmail.com")
+           email = "dr.stevenpawley@gmail.com"),
     person(given = "Max",
            family = "Kuhn",
-           role = c("aut", "cre"),
-           email = "max@rstudio.com")
+           role = c("aut"),
+           email = "max@rstudio.com"))
 Maintainer: Steven Pawley <dr.stevenpawley@gmail.com>
 Description: Provides supervised selection methods to be used as preprocessing 
     steps alongside the 'recipes' package. These steps represent filter-based

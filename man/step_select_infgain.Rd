@@ -14,6 +14,7 @@ step_select_infgain(
   top_p = NA,
   threshold = NA,
   type = "infogain",
+  nbins = 5,
   threads = 1,
   exclude = NULL,
   scores = NULL,
@@ -21,7 +22,7 @@ step_select_infgain(
   id = recipes::rand_id("select_infgain")
 )
 
-\method{tidy}{step_select_infgain}(x, ...)
+\method{tidy}{step_select_infgain}(x, type = "excluded", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -48,8 +49,13 @@ than the specified threshold will be retained, for example `threshold =
 0.9` will retain only predictors with scores in the top 90th percentile.
 Note that this overrides `top_p`.}
 
-\item{type}{A character string specifying the information gain method to use.
-One of "infogain", "gainratio", "symuncert". The default is 'infogain'.}
+\item{type}{A character with either 'excluded' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
+
+\item{nbins}{An integer specifying the number of bins for discretization.
+Only used if the outcome of a continuous variable for regression. The
+default is 'nbins = 5'.}
 
 \item{threads}{An integer specifying the number of threads to use for
 processing. The default = 0 uses all available threads.}
@@ -92,7 +98,12 @@ data(cells, package = "modeldata")
 
 rec <-
  recipe(class ~ ., data = cells[, -1]) \%>\%
- step_select_infgain(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9)
+ step_select_infgain(
+   all_predictors(),
+   outcome = "class",
+   top_p = 10,
+   threshold = 0.9
+ )
 
 prepped <- prep(rec)
 

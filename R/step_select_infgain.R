@@ -25,8 +25,13 @@
 #'   than the specified threshold will be retained, for example `threshold =
 #'   0.9` will retain only predictors with scores in the top 90th percentile.
 #'   Note that this overrides `top_p`.
+#' @param type The entropy measure. One of c("infogain", "gainratio",
+#'   "symuncert"). The default is 'infogain'.
 #' @param threads An integer specifying the number of threads to use for
 #'   processing. The default = 0 uses all available threads.
+#' @param nbins An integer specifying the number of bins for discretization.
+#'   Only used if the outcome of a continuous variable for regression. The
+#'   default is 'nbins = 5'.
 #' @param exclude A character vector of predictor names that will be removed
 #'  from the data. This will be set when `prep()` is used on the recipe and
 #'  should not be set by the user.
@@ -56,7 +61,12 @@
 #'
 #' rec <-
 #'  recipe(class ~ ., data = cells[, -1]) %>%
-#'  step_select_infgain(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9)
+#'  step_select_infgain(
+#'    all_predictors(),
+#'    outcome = "class",
+#'    top_p = 10,
+#'    threshold = 0.9
+#'  )
 #'
 #' prepped <- prep(rec)
 #'
@@ -70,6 +80,7 @@ step_select_infgain <- function(
   top_p = NA,
   threshold = NA,
   type = "infogain",
+  nbins = 5,
   threads = 1,
   exclude = NULL,
   scores = NULL,
@@ -91,6 +102,7 @@ step_select_infgain <- function(
       threshold = threshold,
       type = type,
       threads = threads,
+      nbins = nbins,
       exclude = exclude,
       scores = scores,
       skip = skip,
@@ -102,8 +114,8 @@ step_select_infgain <- function(
 
 # wrapper around 'step' function that sets the class of new step objects
 step_select_infgain_new <- function(terms, role, trained, outcome, top_p,
-                                    threshold, type, threads, exclude, scores,
-                                    skip, id) {
+                                    threshold, type, threads, nbins, exclude,
+                                    scores, skip, id) {
   recipes::step(
     subclass = "select_infgain",
     terms = terms,
@@ -114,6 +126,7 @@ step_select_infgain_new <- function(terms, role, trained, outcome, top_p,
     threshold = threshold,
     type = type,
     threads = threads,
+    nbins = nbins,
     exclude = exclude,
     scores = scores,
     skip = skip,
@@ -125,8 +138,8 @@ step_select_infgain_new <- function(terms, role, trained, outcome, top_p,
 #' @export
 prep.step_select_infgain <- function(x, training, info = NULL, ...) {
   # extract response and predictor names
-  x_names <- recipes::terms_select(terms = x$terms, info = info)
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- y_name[1]
 
   # check criteria
@@ -138,6 +151,8 @@ prep.step_select_infgain <- function(x, training, info = NULL, ...) {
   if (length(x_names) > 0) {
 
     f <- stats::as.formula(paste(y_name, "~", paste0(x_names, collapse = " + ")))
+    model_mode <- check_outcome(training[[y_name]])
+    equal <- model_mode == "regression"
 
     ig_call <- rlang::call2(
       .fn = "information_gain",
@@ -147,7 +162,8 @@ prep.step_select_infgain <- function(x, training, info = NULL, ...) {
       type = x$type,
       threads = x$threads,
       discIntegers = TRUE,
-      equal = FALSE
+      equal = equal,
+      nbins = x$nbins
     )
 
     res <- rlang::eval_tidy(ig_call)
@@ -171,6 +187,7 @@ prep.step_select_infgain <- function(x, training, info = NULL, ...) {
     threshold = x$threshold,
     type = x$type,
     threads = x$threads,
+    nbins = x$nbins,
     exclude = exclude,
     scores = res,
     skip = x$skip,
@@ -187,26 +204,35 @@ bake.step_select_infgain <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_infgain <- function(x, width = max(20, options()$width - 30), ...) {
-  cat("Information Gain feature selection")
+print.step_select_infgain <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("Information Gain feature selection")
 
-  if(recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_infgain
 #' @param x A `step_select_infgain` object.
+#' @param type A character with either 'excluded' (the default) to return a
+#'   tibble containing the variables that have been removed by the filter step,
+#'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_infgain <- function(x, ...) {
+tidy.step_select_infgain <- function(x, type = "excluded", ...) {
   if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
+    if (type == "excluded") {
+      res <- tibble(terms = x$exclude)
+    } else if (type == "scores") {
+      res <- x$scores
+      res <- res[order(res$score, decreasing = TRUE), ]
+    }
+
   } else {
-    term_names <- recipes::sel2char(x$terms)
     res <- tibble(terms = rlang::na_chr)
   }
   res$id <- x$id
@@ -219,6 +245,7 @@ tunable.step_select_infgain <- function(x, ...) {
     name = c("top_p", "threshold"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
+      list(pkg = "colino", fun = "entropy", values = values_entropy),
       list(pkg = "dials", fun = "threshold", range = c(0, 1))
     ),
     source = "recipe",

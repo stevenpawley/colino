@@ -20,8 +20,7 @@ The following feature selection methods are implemented:
 - `step_select_infgain` provides Information Gain feature selection. This step
 requires the `FSelectorRcpp` package to be installed and can be used for both
 classification and regression problems. For regression, the target variable is
-discretized using equal frequency binning. The number of bins can be set with
-the'options' parameter (default is `options = list(nbins = 5)`).
+discretized using equal frequency binning.
 
 - `step_select_mrmr` provides maximum Relevancy Minimum Redundancy feature
 selection. This step requires the `praznik` package to be installed. This step

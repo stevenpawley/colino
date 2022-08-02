@@ -26,3 +26,30 @@ top_p <- function(range = c(1L, 4L), trans = NULL) {
     finalize = dials::get_p
   )
 }
+
+values_entropy <- c("infogain", "gainratio", "symuncert")
+
+
+#' Parameter functions for feature selection recipes
+#'
+#' Entropy-based feature selection methods can be applied using several methods
+#' to calculate the entropy formula. `entropy` is for specifying the type of
+#' entropy-based filter that is used.
+#'
+#' @param values A character string of possible values. See `values_entropy` for
+#'   possible values.
+#'
+#' @return A function with classes "qual_param" and "param"
+#' @export
+#'
+#' @examples
+#' entropy('infogain')
+entropy <- function(values = values_entropy) {
+  dials::new_qual_param(
+    type = "character",
+    values = values,
+    default = "infogain",
+    label = c(entropy = "Method used for entropy-based feature selection"),
+    finalize = NULL
+  )
+}

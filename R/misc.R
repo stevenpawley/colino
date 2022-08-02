@@ -102,3 +102,7 @@ select_percentile <- function(x, top_p, threshold, maximize) {
 
   removals
 }
+
+check_outcome <- function(y) {
+  ifelse(inherits(y, "factor"), "classification", "regression")
+}
