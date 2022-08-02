@@ -79,7 +79,7 @@
 </h2>
 <p>The following feature selection methods are implemented:</p>
 <ul>
-<li><p><code>step_select_infgain</code> provides Information Gain feature selection. This step requires the <code>FSelectorRcpp</code> package to be installed and can be used for both classification and regression problems. For regression, the target variable is discretized using equal frequency binning. The number of bins can be set with the’options’ parameter (default is <code>options = list(nbins = 5)</code>).</p></li>
+<li><p><code>step_select_infgain</code> provides Information Gain feature selection. This step requires the <code>FSelectorRcpp</code> package to be installed and can be used for both classification and regression problems. For regression, the target variable is discretized using equal frequency binning.</p></li>
 <li><p><code>step_select_mrmr</code> provides maximum Relevancy Minimum Redundancy feature selection. This step requires the <code>praznik</code> package to be installed. This step can be used for classification and regression problems. Similar to information gain, binning is used when the target variable is continuous.</p></li>
 <li><p><code>step_select_roc</code> provides ROC-based feature selection based on each predictors’ relationship with the response outcomes measured using a Receiver Operating Characteristic curve.</p></li>
 <li><p><code>step_select_xtab</code> provides feature selection using statistical association.</p></li>
@@ -174,7 +174,8 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Max Kuhn <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Steven Pawley <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Max Kuhn <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -186,7 +187,7 @@
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Max Kuhn.</p>
+<p>Developed by Steven Pawley, Max Kuhn.</p>
 </div>
 
 <div class="pkgdown-footer-right">
