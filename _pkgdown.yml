@@ -1,1 +1,4 @@
-destination: docs
+url: https://stevenpawley.github.io/colino/
+template:
+  bootstrap: 5
+
