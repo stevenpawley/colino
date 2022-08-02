@@ -45,14 +45,17 @@ test_that("step_select_boruta, options", {
   )
 
   # step_select_boruta results
-  rec <- recipe(Class ~ ., data = lending_club) %>%
-    step_select_boruta(all_predictors(), outcome = "Class",
-                       options = list(getImp = Boruta::getImpRfGini))
+  rec <-
+    recipe(Class ~ ., data = lending_club) %>%
+    step_select_boruta(
+      all_predictors(),
+      outcome = "Class",
+      options = list(getImp = Boruta::getImpRfGini)
+    )
   set.seed(1234)
   prepped <- rec %>% prep()
 
   # check
-  expect_equal(excluded, prepped$steps[[1]]$exclude)
+  expect_equal(excluded, tidy(prepped, number = 1)$terms)
   expect_equal(boruta_mod$ImpHistory, prepped$steps[[1]]$res$ImpHistory)
 })
-

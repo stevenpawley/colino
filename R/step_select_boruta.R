@@ -1,7 +1,20 @@
 #' Feature selection step using Boruta
 #'
-#' `step_select_boruta` creates a *specification* of a recipe step that selects a
-#' subset of predictors using the Boruta feature selection approach.
+#' `step_select_boruta` creates a *specification* of a recipe step that selects
+#' a subset of predictors using the Boruta feature selection approach.
+#'
+#' The Boruta algorithm technically is a wrapper approach that uses random
+#' forests to test whether the feature importance scores obtained on the
+#' original data are higher than best of the scores obtained when the variables
+#' are randomly permuted. These permuted features are termed 'shadow' features.
+#' If the scores for any original feature are higher than the best of the scores
+#' for the randomly permuted features, then this is marked as a 'hit'. Features
+#' are confirmed or rejected based on a confidence threshold (default is p =
+#' 0.01) applied to the tails of the binomial distribution with p = 0.5.
+#' Features that do not fall within the lower (reject) or upper (accept) tails
+#' of the distribution are labelled as 'tentative'. Rejected features are
+#' dropped from the feature set and the procedure is repeated until no more
+#' 'tentative' features exist, or that a maximum number of runs are reached.
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
 #'   operations for this recipe.
@@ -14,8 +27,8 @@
 #' @param trained A logical to indicate if the quantities for preprocessing have
 #'   been estimated.
 #' @param exclude A character vector of predictor names that will be removed
-#'  from the data. This will be set when `prep()` is used on the recipe and
-#'  should not be set by the user.
+#'   from the data. This will be set when `prep()` is used on the recipe and
+#'   should not be set by the user.
 #' @param options A list of options to pass to `Boruta::Boruta()`. The defaults
 #'   use Boruta's defaults. *Note* that `x` and `y` should not be passed here.
 #' @param res The `Boruta::Boruta` object is stored here once this preprocessing
@@ -97,8 +110,8 @@ step_select_boruta_new <- function(terms, role, trained, outcome, exclude,
 prep.step_select_boruta <- function(x, training, info = NULL, ...) {
 
   # translate the terms arguments
-  x_names <- recipes::terms_select(terms = x$terms, info = info)
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- y_name[1]
 
   if (length(x_names) > 0) {
@@ -141,28 +154,25 @@ bake.step_select_boruta <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_boruta <- function(x, width = max(20, options()$width - 30), ...) {
-  cat("Boruta feature selection")
+print.step_select_boruta <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("Boruta feature selection")
 
-  if (recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_boruta
 #' @param x A `step_select_boruta` object.
+#' @param type A character with either 'terms' (the default) to return a
+#'   tibble containing the variables that have been removed by the filter step,
+#'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_boruta <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = rlang::na_chr)
-  }
-  res$id <- x$id
-  res
+tidy.step_select_boruta <- function(x, type = "terms", ...) {
+  tidy_filter_step(x, type)
 }

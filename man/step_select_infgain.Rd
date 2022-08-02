@@ -22,7 +22,7 @@ step_select_infgain(
   id = recipes::rand_id("select_infgain")
 )
 
-\method{tidy}{step_select_infgain}(x, type = "excluded", ...)
+\method{tidy}{step_select_infgain}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -49,7 +49,7 @@ than the specified threshold will be retained, for example `threshold =
 0.9` will retain only predictors with scores in the top 90th percentile.
 Note that this overrides `top_p`.}
 
-\item{type}{A character with either 'excluded' (the default) to return a
+\item{type}{A character with either 'terms' (the default) to return a
 tibble containing the variables that have been removed by the filter step,
 or 'scores' to return the scores for each variable.}
 

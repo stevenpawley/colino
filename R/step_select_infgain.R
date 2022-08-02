@@ -219,24 +219,12 @@ print.step_select_infgain <-
 
 #' @rdname step_select_infgain
 #' @param x A `step_select_infgain` object.
-#' @param type A character with either 'excluded' (the default) to return a
+#' @param type A character with either 'terms' (the default) to return a
 #'   tibble containing the variables that have been removed by the filter step,
 #'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_infgain <- function(x, type = "excluded", ...) {
-  if (recipes::is_trained(x)) {
-    if (type == "excluded") {
-      res <- tibble(terms = x$exclude)
-    } else if (type == "scores") {
-      res <- x$scores
-      res <- res[order(res$score, decreasing = TRUE), ]
-    }
-
-  } else {
-    res <- tibble(terms = rlang::na_chr)
-  }
-  res$id <- x$id
-  res
+tidy.step_select_infgain <- function(x, type = "terms", ...) {
+  tidy_filter_step(x, type)
 }
 
 #' @export

@@ -18,7 +18,7 @@ step_select_boruta(
   id = recipes::rand_id("select_boruta")
 )
 
-\method{tidy}{step_select_boruta}(x, ...)
+\method{tidy}{step_select_boruta}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -55,13 +55,31 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_select_boruta` object.}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 a `step_select_boruta` object.
 }
 \description{
-`step_select_boruta` creates a *specification* of a recipe step that selects a
-subset of predictors using the Boruta feature selection approach.
+`step_select_boruta` creates a *specification* of a recipe step that selects
+a subset of predictors using the Boruta feature selection approach.
+}
+\details{
+The Boruta algorithm technically is a wrapper approach that uses random
+forests to test whether the feature importance scores obtained on the
+original data are higher than best of the scores obtained when the variables
+are randomly permuted. These permuted features are termed 'shadow' features.
+If the scores for any original feature are higher than the best of the scores
+for the randomly permuted features, then this is marked as a 'hit'. Features
+are confirmed or rejected based on a confidence threshold (default is p =
+0.01) applied to the tails of the binomial distribution with p = 0.5.
+Features that do not fall within the lower (reject) or upper (accept) tails
+of the distribution are labelled as 'tentative'. Rejected features are
+dropped from the feature set and the procedure is repeated until no more
+'tentative' features exist, or that a maximum number of runs are reached.
 }
 \examples{
 library(recipes)
