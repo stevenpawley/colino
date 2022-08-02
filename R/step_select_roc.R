@@ -52,17 +52,20 @@
 #'   step_select_roc(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9) %>%
 #'   prep()
 #'
-#' rec %>% juice(all_predictors()) %>% names()
+#' rec %>% bake(all_predictors(), new_data = NULL) %>% names()
 #'
 #' # Use ROC values to select but always keep at least one:
 #' rec <-
 #'   recipe(class ~ ., data = cells[, -1]) %>%
-#'   step_select_roc(all_predictors(), outcome = "class", top_p = 1, threshold = 0.99) %>%
+#'   step_select_roc(
+#'     all_predictors(),
+#'     outcome = "class",
+#'     top_p = 1,
+#'     threshold = 0.99
+#'   ) %>%
 #'   prep()
 #'
 #' rec %>% juice(all_predictors()) %>% names()
-#'
-#' # in case of missing data...
 step_select_roc <- function(recipe,
                            ...,
                            outcome,
@@ -110,9 +113,11 @@ roc_calc <- function(x, y) {
     suppressWarnings(
       {
         if (length(levels(y)) == 2) {
-          res <- try(pROC::roc(y, x, direction = "auto"), silent = TRUE)
+          res <- try(pROC::roc(y, x, direction = "auto"),
+                     silent = TRUE)
         } else {
-          res <- try(pROC::multiclass.roc(y, x, direction = "auto"), silent = TRUE)
+          res <- try(pROC::multiclass.roc(y, x, direction = "auto"),
+                     silent = TRUE)
         }
       }
     )
@@ -128,12 +133,12 @@ roc_calc <- function(x, y) {
 
 #' @export
 prep.step_select_roc <- function(x, training, info = NULL, ...) {
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- x$outcome[1]
   recipes::check_type(training[, y_name], quant = FALSE)
-  x_names <- recipes::terms_select(x$terms, info = info, empty_fun = I)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
 
-  if(length(x_names) > 0) {
+  if (length(x_names) > 0) {
 
     recipes::check_type(training[, x_names])
 
@@ -171,30 +176,24 @@ bake.step_select_roc <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_roc <- function(x, width = max(20, options()$width - 30), ...) {
-  cat("ROC curve feature selection")
+print.step_select_roc <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("ROC curve feature selection")
 
-  if(recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_roc
 #' @param x A `step_select_roc` object.
 #' @export
 tidy.step_select_roc <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = rlang::na_chr)
-  }
-  res$id <- x$id
-  res
+  tidy_filter_step(x, type = "terms")
 }
 
 #' @export

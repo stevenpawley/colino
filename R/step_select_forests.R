@@ -1,8 +1,8 @@
 #' Feature selection step using a random forest feature importance scores
 #'
 #' `step_select_forests` creates a *specification* of a recipe step that selects
-#' a subset of predictors based on the ranking of variable importance using
-#' a `parsnip::rand_forest` supported model.
+#' a subset of predictors based on the ranking of variable importance using a
+#' `parsnip::rand_forest` supported model.
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
 #'   operations for this recipe.
@@ -20,8 +20,7 @@
 #'   example, if `engine = 'ranger'` (the default) then options could be
 #'   `list(permutation = 'importance`) because a feature importance method needs
 #'   to be specified for this engine. This is the default.
-#' @param top_p An integer with the number of best scoring features to
-#'   select.
+#' @param top_p An integer with the number of best scoring features to select.
 #' @param mtry An integer for the number of predictors that will be randomly
 #'   sampled at each split when creating the tree models.
 #' @param trees An integer for the number of trees contained in the ensemble.
@@ -33,8 +32,8 @@
 #'   0.9` will retain only predictors with scores in the top 90th percentile.
 #'   Note that this overrides `top_p`.
 #' @param exclude A character vector of predictor names that will be removed
-#'  from the data. This will be set when `prep()` is used on the recipe and
-#'  should not be set by the user.
+#'   from the data. This will be set when `prep()` is used on the recipe and
+#'   should not be set by the user.
 #' @param scores A tibble with 'variable' and 'scores' columns containing the
 #'   names of the variables and their feature importance scores. This parameter
 #'   is only produced after the recipe has been trained.
@@ -139,8 +138,8 @@ step_select_forests_new <- function(terms, role, trained, outcome, engine,
 #' @export
 prep.step_select_forests <- function(x, training, info = NULL, ...) {
   # translate the terms arguments
-  x_names <- recipes::terms_select(terms = x$terms, info = info)
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- y_name[1]
 
   # check criteria
@@ -153,7 +152,7 @@ prep.step_select_forests <- function(x, training, info = NULL, ...) {
     X <- training[, x_names]
     y <- training[[y_name]]
 
-    model_mode <- ifelse(inherits(y, "numeric"), "regression", "classification")
+    model_mode <- check_outcome(y)
 
     model_args <- list(
       trees = x$trees,
@@ -210,32 +209,28 @@ bake.step_select_forests <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_forests <- function(x, width = max(20, options()$width - 30),
-                                      ...) {
-  cat("Variable importance feature selection")
+print.step_select_forests <-
+  function(x, width = max(20, options()$width - 30),
+           ...) {
+    cat("Variable importance feature selection")
 
-  if (recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_forests
 #' @param x A `step_select_forests` object.
+#' @param type A character with either 'terms' (the default) to return a
+#'   tibble containing the variables that have been removed by the filter step,
+#'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_forests <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = term_names)
-  }
-  res$id <- x$id
-  res
+tidy.step_select_forests <- function(x, type = "terms", ...) {
+  tidy_filter_step(x, type)
 }
 
 #' @export

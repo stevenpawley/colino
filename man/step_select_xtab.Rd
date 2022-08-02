@@ -96,7 +96,6 @@ rec <-
 rec \%>\% juice(all_nominal(), -all_outcomes()) \%>\% names()
 
 tidy(rec, number = 1)
-
 }
 \concept{preprocessing}
 \concept{supervised_filter}

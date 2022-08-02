@@ -3,7 +3,7 @@
 \name{step_select_carscore}
 \alias{step_select_carscore}
 \alias{tidy.step_select_carscore}
-\title{Information gain feature selection step}
+\title{Feature selection step using the CAR score algorithm}
 \usage{
 step_select_carscore(
   recipe,
@@ -21,7 +21,7 @@ step_select_carscore(
   id = recipes::rand_id("select_carscore")
 )
 
-\method{tidy}{step_select_carscore}(x, ...)
+\method{tidy}{step_select_carscore}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -39,8 +39,7 @@ This must refer to a numeric feature for regression.}
 \item{trained}{A logical to indicate if the quantities for preprocessing have
 been estimated.}
 
-\item{top_p}{An integer with the number of best scoring features to
-select.}
+\item{top_p}{An integer with the number of best scoring features to select.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. Features with scores that are _larger_
@@ -70,6 +69,10 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_select_carscore` object.}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 A step_select_carscore object.
@@ -91,11 +94,16 @@ data(car_prices, package = "modeldata")
 
 rec <-
  recipe(Price ~ ., data = car_prices) \%>\%
- step_select_carscore(all_predictors(), outcome = "Price", top_p = 5, threshold = 0.7)
+ step_select_carscore(
+   all_predictors(),
+   outcome = "Price",
+   top_p = 5,
+   threshold = 0.7
+ )
 
 prepped <- prep(rec)
 
-new_data <- juice(prepped)
+new_data <- bake(prepped, new_data = NULL)
 prepped
 }
 \concept{preprocessing}

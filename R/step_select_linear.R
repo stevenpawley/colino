@@ -16,8 +16,7 @@
 #'   been estimated.
 #' @param engine A supported rand_forest engine that is supported by parsnip.
 #'   The default is "glm".
-#' @param top_p An integer with the number of best scoring features to
-#'   select.
+#' @param top_p An integer with the number of best scoring features to select.
 #' @param penalty A non-negative number representing the total amount of
 #'   regularization (specific engines only).
 #' @param mixture A number between zero and one (inclusive) that is the
@@ -30,8 +29,8 @@
 #'   0.9` will retain only predictors with scores in the top 90th percentile.
 #'   Note that this overrides `top_p`.
 #' @param exclude A character vector of predictor names that will be removed
-#'  from the data. This will be set when `prep()` is used on the recipe and
-#'  should not be set by the user.
+#'   from the data. This will be set when `prep()` is used on the recipe and
+#'   should not be set by the user.
 #' @param scores A tibble with 'variable' and 'scores' columns containing the
 #'   names of the variables and their feature importance scores. This parameter
 #'   is only produced after the recipe has been trained.
@@ -54,12 +53,16 @@
 #' # create a preprocessing recipe
 #' rec <-
 #'  recipe(class ~ ., data = cells[, -1]) %>%
-#'  step_select_linear(all_predictors(), outcome = "class", top_p = 10,
-#'                      threshold = 0.9)
+#'  step_select_linear(
+#'    all_predictors(),
+#'    outcome = "class",
+#'    top_p = 10,
+#'    threshold = 0.9
+#'  )
 #'
 #' prepped <- prep(rec)
 #'
-#' preproc_data <- juice(prepped)
+#' preproc_data <- bake(prepped, new_data = NULL)
 #' prepped
 step_select_linear <- function(
     recipe,
@@ -135,8 +138,8 @@ step_select_linear_new <- function(terms, role, trained, outcome, engine,
 prep.step_select_linear <- function(x, training, info = NULL, ...) {
 
   # translate the terms arguments
-  x_names <- recipes::terms_select(terms = x$terms, info = info)
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- y_name[1]
 
   # check criteria
@@ -149,7 +152,7 @@ prep.step_select_linear <- function(x, training, info = NULL, ...) {
     X <- training[, x_names]
     y <- training[[y_name]]
 
-    model_mode <- ifelse(inherits(y, "numeric"), "regression", "classification")
+    model_mode <- check_outcome(y)
 
     model_args <- list(
       penalty = x$penalty,
@@ -219,32 +222,28 @@ bake.step_select_linear <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_linear <- function(x, width = max(20, options()$width - 30),
-                                   ...) {
-  cat("Variable importance feature selection")
+print.step_select_linear <-
+  function(x, width = max(20, options()$width - 30),
+           ...) {
+    cat("Variable importance feature selection")
 
-  if (recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_linear
 #' @param x A `step_select_linear` object.
+#' @param type A character with either 'terms' (the default) to return a
+#'   tibble containing the variables that have been removed by the filter step,
+#'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_linear <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = term_names)
-  }
-  res$id <- x$id
-  res
+tidy.step_select_linear <- function(x, type = "terms", ...) {
+  tidy_filter_step(x, type)
 }
 
 #' @export

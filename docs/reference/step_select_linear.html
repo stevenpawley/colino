@@ -72,7 +72,7 @@ provided by a `parsnip::linear_reg` or `parsnip::logistic_reg` model.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for step_select_linear</span></span>
-<span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, type <span class="op">=</span> <span class="st">"terms"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -120,8 +120,7 @@ regression is being used (specific engines only).</p></dd>
 
 
 <dt>top_p</dt>
-<dd><p>An integer with the number of best scoring features to
-select.</p></dd>
+<dd><p>An integer with the number of best scoring features to select.</p></dd>
 
 
 <dt>threshold</dt>
@@ -159,6 +158,12 @@ TRUE as it may affect the computations for subsequent operations.</p></dd>
 <dt>x</dt>
 <dd><p>A `step_select_linear` object.</p></dd>
 
+
+<dt>type</dt>
+<dd><p>A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -178,12 +183,16 @@ TRUE as it may affect the computations for subsequent operations.</p></dd>
 <span class="r-in"><span><span class="co"># create a preprocessing recipe</span></span></span>
 <span class="r-in"><span><span class="va">rec</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipe</a></span><span class="op">(</span><span class="va">class</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">cells</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span> <span class="fu">step_select_linear</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_predictors</a></span><span class="op">(</span><span class="op">)</span>, outcome <span class="op">=</span> <span class="st">"class"</span>, top_p <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>                     threshold <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="fu">step_select_linear</span><span class="op">(</span></span></span>
+<span class="r-in"><span>   <span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_predictors</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>   outcome <span class="op">=</span> <span class="st">"class"</span>,</span></span>
+<span class="r-in"><span>   top_p <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>   threshold <span class="op">=</span> <span class="fl">0.9</span></span></span>
+<span class="r-in"><span> <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">prepped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="va">rec</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">preproc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/juice.html" class="external-link">juice</a></span><span class="op">(</span><span class="va">prepped</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">preproc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">prepped</span>, new_data <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">prepped</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Recipe</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

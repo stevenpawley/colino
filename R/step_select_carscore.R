@@ -1,4 +1,4 @@
-#' Information gain feature selection step
+#' Feature selection step using the CAR score algorithm
 #'
 #' `step_select_carscore` creates a *specification* of a recipe step that
 #' selects a subset of predictors as part of a regression model based on the
@@ -19,16 +19,15 @@
 #'   otherwise with diagonal = TRUE marginal correlations.
 #' @param outcome A character string with the name of the response variable.
 #'   This must refer to a numeric feature for regression.
-#' @param top_p An integer with the number of best scoring features to
-#'   select.
+#' @param top_p An integer with the number of best scoring features to select.
 #' @param threshold A numeric value between 0 and 1 representing the percentile
 #'   of best scoring features to select. Features with scores that are _larger_
 #'   than the specified threshold will be retained, for example `threshold =
 #'   0.9` will retain only predictors with scores in the top 90th percentile.
 #'   Note that this overrides `top_p`.
 #' @param exclude A character vector of predictor names that will be removed
-#'  from the data. This will be set when `prep()` is used on the recipe and
-#'  should not be set by the user.
+#'   from the data. This will be set when `prep()` is used on the recipe and
+#'   should not be set by the user.
 #' @param scores A tibble with 'variable' and 'scores' columns containing the
 #'   names of the variables and the absolute values of the calculated CAR
 #'   scores. This parameter is only produced after the recipe has been trained.
@@ -55,11 +54,16 @@
 #'
 #' rec <-
 #'  recipe(Price ~ ., data = car_prices) %>%
-#'  step_select_carscore(all_predictors(), outcome = "Price", top_p = 5, threshold = 0.7)
+#'  step_select_carscore(
+#'    all_predictors(),
+#'    outcome = "Price",
+#'    top_p = 5,
+#'    threshold = 0.7
+#'  )
 #'
 #' prepped <- prep(rec)
 #'
-#' new_data <- juice(prepped)
+#' new_data <- bake(prepped, new_data = NULL)
 #' prepped
 step_select_carscore <- function(
   recipe, ...,
@@ -101,8 +105,8 @@ step_select_carscore <- function(
 
 # wrapper around 'step' function that sets the class of new step objects
 step_select_carscore_new <- function(terms, role, trained, outcome, top_p,
-                                    threshold, lambda, diagonal, exclude, scores,
-                                    skip, id) {
+                                    threshold, lambda, diagonal, exclude,
+                                    scores, skip, id) {
   recipes::step(
     subclass = "select_carscore",
     terms = terms,
@@ -125,8 +129,8 @@ step_select_carscore_new <- function(terms, role, trained, outcome, top_p,
 prep.step_select_carscore <- function(x, training, info = NULL, ...) {
 
   # extract response and predictor names
-  x_names <- recipes::terms_select(terms = x$terms, info = info)
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- y_name[1]
 
   # check criteria
@@ -191,30 +195,27 @@ bake.step_select_carscore <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_carscore <- function(x, width = max(20, options()$width - 30), ...) {
-  cat("Carscore feature selection")
+print.step_select_carscore <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("Carscore feature selection")
 
-  if(recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_carscore
 #' @param x A `step_select_carscore` object.
+#' @param type A character with either 'terms' (the default) to return a
+#'   tibble containing the variables that have been removed by the filter step,
+#'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_carscore <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = rlang::na_chr)
-  }
-  res$id <- x$id
-  res
+tidy.step_select_carscore <- function(x, type = "terms", ...) {
+  tidy_filter_step(x, type)
 }
 
 #' @export

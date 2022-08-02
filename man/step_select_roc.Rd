@@ -84,17 +84,20 @@ rec <-
   step_select_roc(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9) \%>\%
   prep()
 
-rec \%>\% juice(all_predictors()) \%>\% names()
+rec \%>\% bake(all_predictors(), new_data = NULL) \%>\% names()
 
 # Use ROC values to select but always keep at least one:
 rec <-
   recipe(class ~ ., data = cells[, -1]) \%>\%
-  step_select_roc(all_predictors(), outcome = "class", top_p = 1, threshold = 0.99) \%>\%
+  step_select_roc(
+    all_predictors(),
+    outcome = "class",
+    top_p = 1,
+    threshold = 0.99
+  ) \%>\%
   prep()
 
 rec \%>\% juice(all_predictors()) \%>\% names()
-
-# in case of missing data...
 }
 \concept{preprocessing}
 \concept{supervised_filter}

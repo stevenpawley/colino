@@ -20,7 +20,7 @@ step_select_mrmr(
   id = recipes::rand_id("select_mrmr")
 )
 
-\method{tidy}{step_select_mrmr}(x, ...)
+\method{tidy}{step_select_mrmr}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -67,6 +67,10 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_select_mrmr` object.}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 A step_select_mrmr object.
@@ -74,8 +78,8 @@ A step_select_mrmr object.
 \description{
 `step_select_mrmr` creates a *specification* of a recipe step that will apply
 minimum Redundancy Maximum Relevance Feature Selection (mRMR) to numeric
-data. The top `top_p` scoring features, or features whose scores occur in
-the top percentile `threshold` will be retained as new predictors.
+data. The top `top_p` scoring features, or features whose scores occur in the
+top percentile `threshold` will be retained as new predictors.
 }
 \details{
 The recipe will stop if both `top_p` and `threshold` are left unspecified.
@@ -87,11 +91,16 @@ data(cells, package = "modeldata")
 
 rec <-
  recipe(class ~ ., data = cells[, -1]) \%>\%
- step_select_mrmr(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9)
+ step_select_mrmr(
+   all_predictors(),
+   outcome = "class",
+   top_p = 10,
+   threshold = 0.9
+ )
 
 prepped <- prep(rec)
 
-new_data <- juice(prepped)
+new_data <- bake(prepped, new_data = NULL)
 prepped
 }
 \concept{preprocessing}

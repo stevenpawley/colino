@@ -21,7 +21,7 @@ step_select_vip(
   id = recipes::rand_id("select_vip")
 )
 
-\method{tidy}{step_select_vip}(x, ...)
+\method{tidy}{step_select_vip}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -69,7 +69,11 @@ TRUE as it may affect the computations for subsequent operations.}
 
 \item{id}{A character string that is unique to this step to identify it.}
 
-\item{x}{A `step_select_vip` object.}
+\item{x}{A `step_select_vip` object}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 a `step_select_vip` object.
@@ -83,7 +87,7 @@ a `parsnip` model specification and the `model` parameter
 library(recipes)
 library(parsnip)
 
-# load the example iris dataset
+# load the example cells dataset
 data(cells, package = "modeldata")
 
 # define a base model to use for feature importances
@@ -93,7 +97,13 @@ base_model <- rand_forest(mode = "classification") \%>\%
 # create a preprocessing recipe
 rec <-
  recipe(class ~ ., data = cells[, -1]) \%>\%
- step_select_vip(all_predictors(), outcome = "class", model = base_model, top_p = 10, threshold = 0.9)
+ step_select_vip(
+   all_predictors(),
+   outcome = "class",
+   model = base_model,
+   top_p = 10,
+   threshold = 0.9
+ )
 
 prepped <- prep(rec)
 

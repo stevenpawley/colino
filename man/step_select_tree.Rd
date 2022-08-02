@@ -23,7 +23,7 @@ step_select_tree(
   id = recipes::rand_id("select_tree")
 )
 
-\method{tidy}{step_select_tree}(x, ...)
+\method{tidy}{step_select_tree}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -52,8 +52,7 @@ parameter (a.k.a. Cp) used by CART models (specific engines only).}
 \item{min_n}{An integer for the minimum number of data points in a node that
 are required for the node to be split further.}
 
-\item{top_p}{An integer with the number of best scoring features to
-select.}
+\item{top_p}{An integer with the number of best scoring features to select.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. Features with scores that are _larger_
@@ -78,6 +77,10 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_select_tree` object.}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 a `step_select_tree` object.
@@ -91,17 +94,17 @@ a `parsnip::decision_tree` supported model.
 library(recipes)
 library(parsnip)
 
-# load the example iris dataset
+# load the example cells dataset
 data(cells, package = "modeldata")
 
 # create a preprocessing recipe
 rec <-
  recipe(class ~ ., data = cells[, -1]) \%>\%
  step_select_tree(all_predictors(), outcome = "class", top_p = 10,
-                     threshold = 0.9)
+                  threshold = 0.9)
 
 prepped <- prep(rec)
 
-preproc_data <- juice(prepped)
+preproc_data <- bake(prepped, new_data = NULL)
 prepped
 }

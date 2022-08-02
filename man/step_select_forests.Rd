@@ -24,7 +24,7 @@ step_select_forests(
   id = recipes::rand_id("select_forests")
 )
 
-\method{tidy}{step_select_forests}(x, ...)
+\method{tidy}{step_select_forests}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -58,8 +58,7 @@ sampled at each split when creating the tree models.}
 \item{min_n}{An integer for the minimum number of data points in a node that
 are required for the node to be split further.}
 
-\item{top_p}{An integer with the number of best scoring features to
-select.}
+\item{top_p}{An integer with the number of best scoring features to select.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. Features with scores that are _larger_
@@ -84,14 +83,18 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_select_forests` object.}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 a `step_select_forests` object.
 }
 \description{
 `step_select_forests` creates a *specification* of a recipe step that selects
-a subset of predictors based on the ranking of variable importance using
-a `parsnip::rand_forest` supported model.
+a subset of predictors based on the ranking of variable importance using a
+`parsnip::rand_forest` supported model.
 }
 \examples{
 library(recipes)

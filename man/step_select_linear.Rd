@@ -22,7 +22,7 @@ step_select_linear(
   id = recipes::rand_id("select_linear")
 )
 
-\method{tidy}{step_select_linear}(x, ...)
+\method{tidy}{step_select_linear}(x, type = "terms", ...)
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
@@ -51,8 +51,7 @@ proportion of L1 regularization (i.e. lasso) in the model. When mixture =
 1, it is a pure lasso model while mixture = 0 indicates that ridge
 regression is being used (specific engines only).}
 
-\item{top_p}{An integer with the number of best scoring features to
-select.}
+\item{top_p}{An integer with the number of best scoring features to select.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. Features with scores that are _larger_
@@ -77,6 +76,10 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 
 \item{x}{A `step_select_linear` object.}
+
+\item{type}{A character with either 'terms' (the default) to return a
+tibble containing the variables that have been removed by the filter step,
+or 'scores' to return the scores for each variable.}
 }
 \value{
 a `step_select_linear` object.
@@ -96,11 +99,15 @@ data(cells, package = "modeldata")
 # create a preprocessing recipe
 rec <-
  recipe(class ~ ., data = cells[, -1]) \%>\%
- step_select_linear(all_predictors(), outcome = "class", top_p = 10,
-                     threshold = 0.9)
+ step_select_linear(
+   all_predictors(),
+   outcome = "class",
+   top_p = 10,
+   threshold = 0.9
+ )
 
 prepped <- prep(rec)
 
-preproc_data <- juice(prepped)
+preproc_data <- bake(prepped, new_data = NULL)
 prepped
 }

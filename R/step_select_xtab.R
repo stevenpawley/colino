@@ -60,7 +60,6 @@
 #' rec %>% juice(all_nominal(), -all_outcomes()) %>% names()
 #'
 #' tidy(rec, number = 1)
-#'
 step_select_xtab <- function(recipe,
                              ...,
                              outcome,
@@ -125,10 +124,10 @@ tbl_calc <- function(x, y, exact) {
 
 #' @export
 prep.step_select_xtab <- function(x, training, info = NULL, ...) {
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- x$outcome[1]
   recipes::check_type(training[, y_name], quant = FALSE)
-  x_names <- recipes::terms_select(x$terms, info = info, empty_fun = I)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
 
   if (length(x_names) > 0) {
 
@@ -176,30 +175,24 @@ bake.step_select_xtab <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_xtab <- function(x, width = max(20, options()$width - 30), ...) {
-  cat("Association test feature selection")
+print.step_select_xtab <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("Association test feature selection")
 
-  if (recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_xtab
 #' @param x A `step_select_xtab` object.
 #' @export
 tidy.step_select_xtab <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = rlang::na_chr)
-  }
-  res$id <- x$id
-  res
+  tidy_filter_step(x, type = "terms")
 }
 
 #' @export

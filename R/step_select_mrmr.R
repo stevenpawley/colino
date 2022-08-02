@@ -2,8 +2,8 @@
 #'
 #' `step_select_mrmr` creates a *specification* of a recipe step that will apply
 #' minimum Redundancy Maximum Relevance Feature Selection (mRMR) to numeric
-#' data. The top `top_p` scoring features, or features whose scores occur in
-#' the top percentile `threshold` will be retained as new predictors.
+#' data. The top `top_p` scoring features, or features whose scores occur in the
+#' top percentile `threshold` will be retained as new predictors.
 #'
 #' @param recipe 	A recipe object. The step will be added to the sequence of
 #'   operations for this recipe
@@ -25,8 +25,8 @@
 #' @param threads An integer specifying the number of threads to use for
 #'   processing. The default = 0 uses all available threads.
 #' @param exclude A character vector of predictor names that will be removed
-#'  from the data. This will be set when `prep()` is used on the recipe and
-#'  should not be set by the user.
+#'   from the data. This will be set when `prep()` is used on the recipe and
+#'   should not be set by the user.
 #' @param scores A tibble with 'variable' and 'scores' columns containing the
 #'   names of the variables and their mRMR scores. This parameter is only
 #'   produced after the recipe has been trained.
@@ -52,11 +52,16 @@
 #'
 #' rec <-
 #'  recipe(class ~ ., data = cells[, -1]) %>%
-#'  step_select_mrmr(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9)
+#'  step_select_mrmr(
+#'    all_predictors(),
+#'    outcome = "class",
+#'    top_p = 10,
+#'    threshold = 0.9
+#'  )
 #'
 #' prepped <- prep(rec)
 #'
-#' new_data <- juice(prepped)
+#' new_data <- bake(prepped, new_data = NULL)
 #' prepped
 step_select_mrmr <- function(
   recipe, ...,
@@ -115,9 +120,9 @@ step_select_mrmr_new <- function(terms, role, trained, outcome, top_p,
 #' @export
 prep.step_select_mrmr <- function(x, training, info = NULL, ...) {
   # extract response and predictor names
-  y_name <- recipes::terms_select(x$outcome, info = info)
+  y_name <- recipes::recipes_eval_select(x$outcome, training, info)
   y_name <- y_name[1]
-  x_names <- recipes::terms_select(terms = x$terms, info = info)
+  x_names <- recipes::recipes_eval_select(x$terms, training, info)
 
   # check criteria
   check_criteria(x$top_p, x$threshold, match.call())
@@ -173,30 +178,27 @@ bake.step_select_mrmr <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_select_mrmr <- function(x, width = max(20, options()$width - 30), ...) {
-  cat("mRMR feature selection")
+print.step_select_mrmr <-
+  function(x, width = max(20, options()$width - 30), ...) {
+    cat("mRMR feature selection")
 
-  if(recipes::is_trained(x)) {
-    n <- length(x$exclude)
-    cat(paste0(" (", n, " excluded)"))
+    if (recipes::is_trained(x)) {
+      n <- length(x$exclude)
+      cat(paste0(" (", n, " excluded)"))
+    }
+    cat("\n")
+
+    invisible(x)
   }
-  cat("\n")
-
-  invisible(x)
-}
 
 #' @rdname step_select_mrmr
 #' @param x A `step_select_mrmr` object.
+#' @param type A character with either 'terms' (the default) to return a
+#'   tibble containing the variables that have been removed by the filter step,
+#'   or 'scores' to return the scores for each variable.
 #' @export
-tidy.step_select_mrmr <- function(x, ...) {
-  if (recipes::is_trained(x)) {
-    res <- tibble(terms = x$exclude)
-  } else {
-    term_names <- recipes::sel2char(x$terms)
-    res <- tibble(terms = rlang::na_chr)
-  }
-  res$id <- x$id
-  res
+tidy.step_select_mrmr <- function(x, type = "terms", ...) {
+  tidy_filter_step(x, type)
 }
 
 #' @export
