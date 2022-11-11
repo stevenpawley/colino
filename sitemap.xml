@@ -31,10 +31,16 @@
     <loc>https://stevenpawley.github.io/colino/reference/pull_importances.html</loc>
   </url>
   <url>
+    <loc>https://stevenpawley.github.io/colino/reference/required_pkgs.embed.html</loc>
+  </url>
+  <url>
     <loc>https://stevenpawley.github.io/colino/reference/step_select_boruta.html</loc>
   </url>
   <url>
     <loc>https://stevenpawley.github.io/colino/reference/step_select_carscore.html</loc>
+  </url>
+  <url>
+    <loc>https://stevenpawley.github.io/colino/reference/step_select_fcbf.html</loc>
   </url>
   <url>
     <loc>https://stevenpawley.github.io/colino/reference/step_select_forests.html</loc>
