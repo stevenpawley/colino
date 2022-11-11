@@ -7,7 +7,7 @@
 step_select_fcbf(
   recipe,
   ...,
-  min_su = 0.025,
+  threshold = 0.025,
   outcome = NA,
   cutpoint = 0.5,
   features_retained = NA,
@@ -25,7 +25,7 @@ operations for this recipe.}
 \item{...}{Selector functions that specify which features should be
 considered by the FCBF, e.g., all_numeric_predictors(), all_predictors().}
 
-\item{min_su}{Minimum threshold for symmetrical uncertainty. Lower values
+\item{threshold}{Minimum threshold for symmetrical uncertainty. Lower values
 allow more features to be selected.}
 
 \item{outcome}{Outcome variable used for filter selection. If there is only
@@ -61,7 +61,7 @@ Returns the recipe object, with step_select_fcbf added to the
 \description{
 step_select_fcbf takes a set of features and performs a fast correlation
 based filter, resulting in a smaller subset of features being selected. The
-number of features selected depends on the min_su threshold parameter (a
+number of features selected depends on the `threshold` parameter (a
 lower threshold selects more features).
 }
 \details{

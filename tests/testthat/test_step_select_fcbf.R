@@ -11,7 +11,7 @@ test_that("basic usage: expected columns retrieved", {
 
   rec <-
     recipe(Species ~ ., data = my_iris) %>%
-    step_select_fcbf(all_predictors(), min_su = 0.001)
+    step_select_fcbf(all_predictors(), threshold = 0.001)
 
   rec_p <- prep(rec, training = my_iris)
 
@@ -39,19 +39,19 @@ test_that("warns/breaks if not enough predictors are provided", {
   expect_error(prep(rec2, training = iris), "No usable predictors")
 })
 
-test_that("step_select_fcbf rejects bad min_su or cutpoint argument input", {
+test_that("step_select_fcbf rejects bad threshold or cutpoint argument input", {
   skip_if_not_installed("FCBF")
 
   rec <- recipe(Species ~ ., data = iris)
   error_cut <- "cutpoint must be a number"
-  error_su <- "min_su must be a number"
+  error_su <- "threshold must be a number"
 
-  expect_error(rec %>% step_select_fcbf(min_su = 1.5), error_su)
-  expect_error(rec %>% step_select_fcbf(min_su = NA), error_su)
-  expect_error(rec %>% step_select_fcbf(min_su = 0), error_su)
-  expect_error(rec %>% step_select_fcbf(min_su = "median"), error_su)
-  expect_error(rec %>% step_select_fcbf(min_su = TRUE), error_su)
-  expect_error(rec %>% step_select_fcbf(min_su = -0.01), error_su)
+  expect_error(rec %>% step_select_fcbf(threshold = 1.5), error_su)
+  expect_error(rec %>% step_select_fcbf(threshold = NA), error_su)
+  expect_error(rec %>% step_select_fcbf(threshold = 0), error_su)
+  expect_error(rec %>% step_select_fcbf(threshold = "median"), error_su)
+  expect_error(rec %>% step_select_fcbf(threshold = TRUE), error_su)
+  expect_error(rec %>% step_select_fcbf(threshold = -0.01), error_su)
   expect_error(rec %>% step_select_fcbf(cutpoint = 1.5), error_cut)
   expect_error(rec %>% step_select_fcbf(cutpoint = NA), error_cut)
   expect_error(rec %>% step_select_fcbf(cutpoint = 0), error_cut)

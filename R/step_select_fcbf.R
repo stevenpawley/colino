@@ -2,14 +2,14 @@
 #'
 #' step_select_fcbf takes a set of features and performs a fast correlation
 #' based filter, resulting in a smaller subset of features being selected. The
-#' number of features selected depends on the min_su threshold parameter (a
+#' number of features selected depends on the `threshold` parameter (a
 #' lower threshold selects more features).
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
 #'   operations for this recipe.
 #' @param ... Selector functions that specify which features should be
 #'   considered by the FCBF, e.g., all_numeric_predictors(), all_predictors().
-#' @param min_su Minimum threshold for symmetrical uncertainty. Lower values
+#' @param threshold Minimum threshold for symmetrical uncertainty. Lower values
 #'   allow more features to be selected.
 #' @param outcome Outcome variable used for filter selection. If there is only
 #'   one outcome variable in the recipe, it will automatically be detected. If
@@ -58,7 +58,7 @@
 step_select_fcbf <-
   function(recipe,
            ...,
-           min_su = 0.025,
+           threshold = 0.025,
            outcome = NA,
            cutpoint = 0.5,
            features_retained = NA,
@@ -67,20 +67,20 @@ step_select_fcbf <-
            removals = NULL,
            skip = FALSE,
            id = rand_id("select_fcbf")) {
-    # Check for packages
+    # check for packages
     recipes_pkg_check(required_pkgs.step_select_fcbf())
 
-    # Check arguments
-    if (is.na(min_su)) {
-      rlang::abort("min_su must be a number between 0-1")
+    # check arguments
+    if (is.na(threshold)) {
+      rlang::abort("threshold must be a number between 0-1")
     }
 
     if (is.na(cutpoint)) {
       rlang::abort("cutpoint must be a number between 0-1")
     }
 
-    if (!is.numeric(min_su) | min_su >= 1 | min_su <= 0) {
-      rlang::abort("min_su must be a number between 0-1")
+    if (!is.numeric(threshold) | threshold >= 1 | threshold <= 0) {
+      rlang::abort("threshold must be a number between 0-1")
     }
 
     if (!is.numeric(cutpoint) | cutpoint >= 1 | cutpoint <= 0) {
@@ -91,7 +91,7 @@ step_select_fcbf <-
       recipe,
       step_select_fcbf_new(
         terms = enquos(...),
-        min_su = min_su,
+        threshold = threshold,
         outcome = outcome,
         cutpoint = cutpoint,
         features_retained = features_retained,
@@ -107,7 +107,7 @@ step_select_fcbf <-
 #' @importFrom recipes step
 step_select_fcbf_new <-
   function(terms,
-           min_su,
+           threshold,
            outcome,
            cutpoint,
            features_retained,
@@ -119,7 +119,7 @@ step_select_fcbf_new <-
     step(
       subclass = "select_fcbf",
       terms = terms,
-      min_su = min_su,
+      threshold = threshold,
       outcome = outcome,
       cutpoint = cutpoint,
       features_retained = features_retained,
@@ -167,7 +167,7 @@ prep.step_select_fcbf <- function(x, training, info = NULL, ...) {
     FCBF_helper(
       preds = training[, preds_fcbf, drop = FALSE],
       outcome = training[, outcome_col, drop = TRUE],
-      min_su = x$min_su,
+      threshold = x$threshold,
       cutpoint = x$cutpoint
     )
 
@@ -185,7 +185,7 @@ prep.step_select_fcbf <- function(x, training, info = NULL, ...) {
 
   step_select_fcbf_new(
     terms = x$terms,
-    min_su = x$min_su,
+    threshold = x$threshold,
     outcome = outcome_col,
     cutpoint = x$cutpoint,
     features_retained = feats_retained,
@@ -262,7 +262,7 @@ discretize_var <- function(numeric_feat, cutpoint) {
   return(as.factor(results))
 }
 
-FCBF_helper <- function(preds, outcome, min_su, cutpoint) {
+FCBF_helper <- function(preds, outcome, threshold, cutpoint) {
   # Takes a set of predictors, does FCBF for feature selection, and
   # returns the names of the features to keep.
   preds <- preds %>%
@@ -275,7 +275,7 @@ FCBF_helper <- function(preds, outcome, min_su, cutpoint) {
     .ns = "FCBF",
     feature_table = preds,
     target_vector = outcome,
-    minimum_su = min_su,
+    minimum_su = threshold,
     verbose = FALSE,
     samples_in_rows = TRUE
   )
