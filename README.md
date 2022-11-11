@@ -52,6 +52,8 @@ package to be installed.
 model-based methods of selecting a subset of features based on the model's
 feature importance scores or coefficients.
 
+- `step_select_fcbf` provides the Fast Correlation Based Filter method of Yu and Liu, 2003: Feature Selection for High-Dimensional Data: A Fast Correlation-Based Filter Solution. This step is implemented in the Bioconductor package 'FCBF' which can be installed using `BiocManager::install("FCBF")`.
+
 ### Planned methods
 
 - `step_select_fstatistic` using ANOVA for classification and r2 converted to the f-statistic for regression
