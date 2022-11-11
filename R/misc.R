@@ -14,23 +14,33 @@ check_zero_one <- function(x) {
 }
 
 check_top_p <- function(x, n) {
+  # checks on x (top_p) and n (number of features)
   if (is.na(x)) {
     return(x)
-  } else {
-    if (is.numeric(x)) {
-      if (!is.integer(x)) {
-        x <- as.integer(x)
-      }
-      if (x >= n | x <= 0) {
-        msg <- paste0("`top_p` should be on (0, ", n, ").")
-        rlang::warn(msg)
-        x <- min(n - 1, x)
-      }
-    } else {
-      rlang::abort("`top_p` should be numeric.")
-    }
   }
-  x
+
+  if (!is.numeric(x)) {
+    rlang::abort("`top_p` should be numeric.")
+  }
+
+  if (!is.integer(x)) {
+    x <- as.integer(x)
+  }
+
+  msg <- paste0("`top_p` should be on (1, ", n, ") based on the number of features available.")
+
+  # return top_n = all features if top_n > n
+  if (x >= n) {
+    rlang::warn(msg)
+    x <- min(n - 1, x)
+
+  # return a single feature if top_p < 1
+  } else if (x < 1) {
+    rlang::warn(msg)
+    x <- 1
+  }
+
+  return(x)
 }
 
 check_criteria <- function(top_p, threshold, cl) {
@@ -105,4 +115,42 @@ select_percentile <- function(x, top_p, threshold, maximize) {
 
 check_outcome <- function(y) {
   ifelse(inherits(y, "factor"), "classification", "regression")
+}
+
+get_outcome <- function(x, training, info) {
+  if (!all(is.na(x$outcome))) {
+    if (!all(is.character(x$outcome))) {
+      rlang::abort("Outcome variable must be supplied as a character string")
+    }
+
+    outcome_col <- x$outcome
+
+  } else {
+    outcome_col <- info %>%
+      filter(role == 'outcome') %>%
+      pull(variable)
+  }
+
+  if (length(outcome_col) > 1) {
+    msg <- paste(
+      "Multiple outcome variables are present in the recipe.",
+      "Only a single outcome variable can be accepted by any `step_select` functions.",
+      "Please supply the outcome variable using the `outcome` argument"
+    )
+    rlang::abort(msg)
+  }
+
+  if (length(outcome_col) < 1) {
+    msg <- paste(
+      "An outcome variable was not found.",
+      "Please ensure an outcome variable is specified."
+    )
+    rlang::abort(msg)
+  }
+
+  if (!outcome_col %in% names(training)) {
+    rlang::abort(paste0("Outcome variable '", outcome_col, "' not found"))
+  }
+
+  return(outcome_col)
 }
