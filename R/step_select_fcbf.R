@@ -1,49 +1,60 @@
 #' Fast Correlation Based Filter for Feature Selection
 #'
-#' step_select_fcbf takes a set of features and performs a fast correlation
-#' based filter, resulting in a smaller subset of features being selected. The
-#' number of features selected depends on the `threshold` parameter (a
-#' lower threshold selects more features).
+#' `step_select_fcbf` creates a *specification* of a recipe step that selects a
+#' subset of  predictors using the FCBF algorithm. The number of features
+#' retained depends on the `threshold` parameter: a lower threshold
+#' selects more features.
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
 #'   operations for this recipe.
-#' @param ... Selector functions that specify which features should be
-#'   considered by the FCBF, e.g., all_numeric_predictors(), all_predictors().
-#' @param threshold Minimum threshold for symmetrical uncertainty. Lower values
-#'   allow more features to be selected.
-#' @param outcome Outcome variable used for filter selection. If there is only
-#'   one outcome variable in the recipe, it will automatically be detected. If
-#'   multiple outcome variables exist, the user should specify it.
-#' @param cutpoint Quantile value (0-1) describing how to split numeric features
-#'   into binary nominal features. e.g. 0.5 = median split
-#' @param features_retained Internal object that gives a record of which
-#'   features were retained after FCBF. Should not be specified by the user.
+#' @param ... One or more selector functions to choose which variables are
+#'   affected by the step, e.g. all_numeric_predictors(). Any features not
+#'   selected will be retained in the recipe.
+#' @param threshold A numeric value between 0 and 1 representing the symmetrical
+#'   uncertainty threshold used by the FCBF algorithm. Lower thresholds allow
+#'   more features to be selected.
+#' @param outcome A character string specifying the name of the response
+#'   variable. Automatically inferred from the recipe (if possible) when not
+#'   specified by the user.
+#' @param cutpoint A numeric value between 0 and 1 representing the quantile at
+#'   which to split numeric features into binary nominal features. e.g. 0.5 =
+#'   median split. See details for more information on discretization
+#' @param features_retained A tibble containing the features that were retained
+#'   by the FCBF algorithm. This parameter is only produced after the recipe has
+#'   been trained and should not be specified by the user
+#' @param removals A tibble containing the features that were removed
+#'   by the FCBF algorithm. This parameter is only produced after the recipe has
+#'   been trained, and should not be specified by the user
 #' @param role Not used for this step since new variables are not created.
 #' @param trained A logical to indicate if the quantities for preprocessing have
 #'   been estimated.
-#' @param removals Feature columns that will be removed. Used internally and
-#'   should not be set by the user.
 #' @param skip A logical. Should the step be skipped when the recipe is baked by
-#'   bake()? While all operations are baked when prep() is run, some operations
-#'   may not be able to be conducted on new data (e.g. processing the outcome
-#'   variable(s)). Care should be taken when using skip = TRUE as it may affect
-#'   the computations for subsequent operations.
+#'   bake.recipe()? While all operations are baked when prep.recipe() is run,
+#'   some operations may not be able to be conducted on new data (e.g.
+#'   processing the outcome variable(s)). Care should be taken when using skip =
+#'   TRUE as it may affect the computations for subsequent operations.
 #' @param id A character string that is unique to this step to identify it.
 #'
-#' @details step_select_fcbf takes a range of features (e.g. the full feature
-#'   set) and selects a subset of features using the FCBF algorithm as described
-#'   in Yu, L. and Liu, H. (2003).
+#' @details
+#' This function implements the fast correlation-based filter (FCBF)
+#' algorithm as described in Yu & Liu (2003). FCBF selects features that
+#' have high correlation to the outcome, and low correlation to other features.
 #'
-#' FCBF selects features to simultaneously minimize correlation between features
-#' and maximise correlations between the features and the target. FCBF only
-#' works with categorical features, so continuous features must first be
-#' discretized. By default this is based on a median split (i.e. splitting
-#' continuous variables into 'high' versus 'low'), but the method may be
-#' customized in the internal function 'discretize_var'.
+#' Symmetrical uncertainty (SU) is used to indicate the degree of correlation
+#' between predictors and the outcome. A threshold value for SU must be
+#' specified, and smaller thresholds values will result in more features being
+#' selected by the algorithm. Appropriate thresholds are data-dependent, so
+#' different threshold values may need to be explored. It is not possible to
+#' specify an exact number of features that should be retained
 #'
-#' Code to implement the FCBF algorithm is driven by Bioconductor package
-#' 'FCBF'. step_select_fcbf provides wrappers that allow it to be used within
-#' the tidymodels framework
+#' The algorithm requires categorical features, so continuous features are
+#' discretized using a binary split (split at the median by default).
+#' Discretization is only used within the feature selection algorithm,
+#' selected features are then retained in their original continuous form for
+#' further processing.
+#'
+#' The FCBF algorithm is implemented by the Bioconductor package 'FCBF', which
+#' can be installed with BiocManager::install("FCBF")
 
 #' @return Returns the recipe object, with step_select_fcbf added to the
 #'   sequence of operations for this recipe.
@@ -54,7 +65,23 @@
 #'
 #' @export
 #' @importFrom recipes rand_id add_step recipes_pkg_check
-#' @importFrom rlang enquos .data
+#' @importFrom rlang enquos .data.
+#' @examples
+#' library(recipes)
+#' library(colino)
+#'
+#' # Load the example iris dataset
+#' data("iris")
+#'
+#' # Create a preprocessing recipe including FCBF
+#' my_recipe <- recipe(Species ~ ., data = iris) %>%
+#'     step_select_fcbf(all_predictors(), threshold = 0.001)
+#'
+#' prepped <- prep(my_recipe, iris)
+#'
+#' new_data <- juice(prepped, iris)
+#' prepped
+
 step_select_fcbf <-
   function(recipe,
            ...,
@@ -62,9 +89,9 @@ step_select_fcbf <-
            outcome = NA,
            cutpoint = 0.5,
            features_retained = NA,
+           removals = NULL,
            role = NA,
            trained = FALSE,
-           removals = NULL,
            skip = FALSE,
            id = rand_id("select_fcbf")) {
     # check for packages
@@ -130,7 +157,6 @@ step_select_fcbf_new <-
       id = id
     )
   }
-
 #' @importFrom recipes prep recipes_eval_select
 #' @importFrom dplyr filter pull
 #' @importFrom magrittr %>%
@@ -285,7 +311,6 @@ FCBF_helper <- function(preds, outcome, threshold, cutpoint) {
 
   return(res)
 }
-
 
 remove_NA_cols <- function(pred_colnames, df) {
   # Takes a df and character vector of columns names. Columns full of NA are
