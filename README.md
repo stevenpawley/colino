@@ -31,7 +31,11 @@ gain, binning is used when the target variable is continuous.
 predictors' relationship with the response outcomes measured using a Receiver
 Operating Characteristic curve.
 
-- `step_select_xtab` provides feature selection using statistical association.
+- `step_select_xtab` provides feature selection of categorical predictors using
+statistical association for numeric response outcomes.
+
+- `step_select_aov` provides feature selection of categorical predictors using
+the ANOVA F-test for numeric response outcomes.
 
 - `step_select_vip` provides model-based selection using feature importance
 scores or coefficients. This method allows a `parsnip` model specification to be
@@ -52,12 +56,10 @@ package to be installed.
 model-based methods of selecting a subset of features based on the model's
 feature importance scores or coefficients.
 
-- `step_select_fcbf` provides the Fast Correlation Based Filter method of Yu and Liu, 2003: Feature Selection for High-Dimensional Data: A Fast Correlation-Based Filter Solution. This step is implemented in the Bioconductor package 'FCBF' which can be installed using `BiocManager::install("FCBF")`.
-
-### Planned methods
-
-- `step_select_fstatistic` using ANOVA for classification and r2 converted to the f-statistic for regression
-- `step_select_chi2` for classifications
+- `step_select_fcbf` provides the Fast Correlation Based Filter method of Yu and
+Liu, 2003: Feature Selection for High-Dimensional Data: A Fast Correlation-Based
+Filter Solution. This step is implemented in the Bioconductor package 'FCBF'
+which can be installed using `BiocManager::install("FCBF")`.
 
 ## Notes
 

@@ -65,7 +65,7 @@
 #'
 #' @export
 #' @importFrom recipes rand_id add_step recipes_pkg_check
-#' @importFrom rlang enquos .data.
+#' @importFrom rlang enquos .data
 #' @examples
 #' library(recipes)
 #' library(colino)
