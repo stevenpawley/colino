@@ -66,13 +66,13 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="colino">colino<a class="anchor" aria-label="anchor" href="#colino"></a>
 </h1></div>
-<p>The goal of colino is to provide supervised feature selection steps to be used with the tidymodels recipes package.</p>
+<p>The goal of colino is to provide supervised feature selection steps to be used with the tidymodels recipes package. The overall focus of the package is on filter-based feature selection methods. Permutation score methods that use a model can be considered a special case of filter approaches.</p>
 <p>Note - colino is the new package name and replaces the preliminary ‘recipeselectors’ name. Colino will be submitted to CRAN once some additional steps and documentation have been finalized.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"stevenpawley/colino"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"stevenpawley/colino"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="feature-selection-methods">Feature Selection Methods<a class="anchor" aria-label="anchor" href="#feature-selection-methods"></a>
@@ -93,9 +93,20 @@
 </ul>
 </div>
 <div class="section level2">
+<h2 id="feature-selection-criteria">Feature Selection Criteria<a class="anchor" aria-label="anchor" href="#feature-selection-criteria"></a>
+</h2>
+<p>Three parameters are used to filter features within the <code>step_select_</code> functions in colino:</p>
+<ul>
+<li><p><code>top_p</code> can be used to select the number of best scoring features to retain. This is nice because it is intuitive, but it suffers from the issue that you do not always know how many features are present in your recipe, if you have added/removed features in preceding recipe steps.</p></li>
+<li><p><code>threshold</code> can be used to select the percentile of best-scoring features. For example <code>threshold = 0.9</code> will retain only predictors with scores in the top 90th percentile and a smaller threshold value will select more features.</p></li>
+<li><p><code>cutoff</code> is a new argument that can use used to select features based on their absolute feature scores. For example, if a <code>step_select_</code> method is based on the p-values of features, then <code>cutoff</code> can be used to threshold the features based on their p-value units. This requires knowledge of the domain space of those values for any particular method.</p></li>
+</ul>
+<p>Note that <code>top_p</code> and <code>threshold</code> are mutually exclusive but either can be used in conjunction with <code>cutoff</code> to select the top-ranked features and those that have filter scores that meet the cutoff threshold. For example, you can require at least three features to be included by using <code>top_n = 3</code> but also include any other features that meet the cutoff criteria, e.g., cutoff = 0.01 if a method uses p-value units.</p>
+<p>Most <code>step_select_</code> steps have <code>top_p</code>, <code>threshold</code> and <code>cutoff</code> available but a few methods such as Boruta and FCBF do not rank the features, but only provide a list of rejected features. These methods typically only have none of these arguments, or only <code>cutoff</code>.</p>
+</div>
+<div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
 </h2>
-<p>The focus of <code>colino</code> is to provide extra recipes for filter-based feature selection.</p>
 <p>The <code>step_select_vip</code> is designed to work with the <code>parsnip</code> package and requires a base model specification that provides a method of ranking the importance of features, such as feature importance scores or coefficients, with one score per feature. The base model is specified in the step using the <code>model</code> parameter.</p>
 <p>Although <code>step_select_vip</code> allows a diverse range of models to be used as the ranking algorithm, and potentially allows new models to be implemented, a limitation is that the hyperparameters of the ranking model cannot be tuned. As an alternative, <code>step_select_linear</code>, <code>step_select_tree</code> and <code>step_select_forests</code> provide steps specific to these types of models where the hyperparameters of ranking model can be tuned using the same tuning arguments as <code>parsnip</code>.</p>
 <p>The parsnip package does not currently contain a method of pulling feature importance scores from models that support them. The <code>colino</code> package provides a generic function <code>pull_importances</code> for this purpose that accepts a fitted parsnip model, and returns a tibble with two columns ‘feature’ and ‘importance’:</p>

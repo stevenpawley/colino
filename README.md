@@ -1,7 +1,9 @@
 # colino
 
 The goal of colino is to provide supervised feature selection steps to be used
-with the tidymodels recipes package.
+with the tidymodels recipes package. The overall focus of the package is on 
+filter-based feature selection methods. Permutation score methods that use
+a model can be considered a special case of filter approaches.
 
 Note - colino is the new package name and replaces the preliminary
 'recipeselectors' name. Colino will be submitted to CRAN once some additional
@@ -61,10 +63,39 @@ Liu, 2003: Feature Selection for High-Dimensional Data: A Fast Correlation-Based
 Filter Solution. This step is implemented in the Bioconductor package 'FCBF'
 which can be installed using `BiocManager::install("FCBF")`.
 
-## Notes
+## Feature Selection Criteria
 
-The focus of `colino` is to provide extra recipes for filter-based 
-feature selection.
+Three parameters are used to filter features within the `step_select_` functions
+in colino:
+
+- `top_p` can be used to select the number of best scoring features to retain. 
+This is nice because it is intuitive, but it suffers from the issue that you
+do not always know how many features are present in your recipe, if you have
+added/removed features in preceding recipe steps.
+
+- `threshold` can be used to select the percentile of best-scoring features. For
+example `threshold = 0.9` will retain only predictors with scores in the
+top 90th percentile and a smaller threshold value will select more features.
+
+- `cutoff` is a new argument that can use used to select features based on their
+absolute feature scores. For example, if a `step_select_` method is based on
+the p-values of features, then `cutoff` can be used to threshold the features
+based on their p-value units. This requires knowledge of the domain space of
+those values for any particular method.
+
+Note that `top_p` and `threshold` are mutually exclusive but either can be used
+in conjunction with `cutoff` to select the top-ranked features and those
+that have filter scores that meet the cutoff threshold. For example, you can
+require at least three features to be included by using `top_n = 3` but also
+include any other features that meet the cutoff criteria, e.g., cutoff = 0.01 if
+a method uses p-value units.
+
+Most `step_select_` steps have `top_p`, `threshold` and `cutoff` available but
+a few methods such as Boruta and FCBF do not rank the features, but only provide
+a list of rejected features. These methods typically only have none of these
+arguments, or only `cutoff`.
+
+## Notes
 
 The `step_select_vip` is designed to work with the `parsnip` package and
 requires a base model specification that provides a method of ranking the
