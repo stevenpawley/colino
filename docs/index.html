@@ -82,7 +82,8 @@
 <li><p><code>step_select_infgain</code> provides Information Gain feature selection. This step requires the <code>FSelectorRcpp</code> package to be installed and can be used for both classification and regression problems. For regression, the target variable is discretized using equal frequency binning.</p></li>
 <li><p><code>step_select_mrmr</code> provides maximum Relevancy Minimum Redundancy feature selection. This step requires the <code>praznik</code> package to be installed. This step can be used for classification and regression problems. Similar to information gain, binning is used when the target variable is continuous.</p></li>
 <li><p><code>step_select_roc</code> provides ROC-based feature selection based on each predictors’ relationship with the response outcomes measured using a Receiver Operating Characteristic curve.</p></li>
-<li><p><code>step_select_xtab</code> provides feature selection using statistical association.</p></li>
+<li><p><code>step_select_xtab</code> provides feature selection of categorical predictors using statistical association for numeric response outcomes.</p></li>
+<li><p><code>step_select_aov</code> provides feature selection of categorical predictors using the ANOVA F-test for numeric response outcomes.</p></li>
 <li><p><code>step_select_vip</code> provides model-based selection using feature importance scores or coefficients. This method allows a <code>parsnip</code> model specification to be used to select a subset of features based on the models’ feature importances or coefficients. See below for details.</p></li>
 <li><p><code>step_select_boruta</code> provides a Boruta feature selection step. This step can be used for classification and regression problems.</p></li>
 <li><p><code>step_select_carscore</code> provides a CAR score feature selection step for regression models. This step requires the <code>care</code> package to be installed.</p></li>
@@ -90,16 +91,6 @@
 <li><p><code>step_select_forests</code>, <code>step_select_tree</code>, and <code>step_select_linear</code> provide model-based methods of selecting a subset of features based on the model’s feature importance scores or coefficients.</p></li>
 <li><p><code>step_select_fcbf</code> provides the Fast Correlation Based Filter method of Yu and Liu, 2003: Feature Selection for High-Dimensional Data: A Fast Correlation-Based Filter Solution. This step is implemented in the Bioconductor package ‘FCBF’ which can be installed using <code>BiocManager::install("FCBF")</code>.</p></li>
 </ul>
-<div class="section level3">
-<h3 id="planned-methods">Planned methods<a class="anchor" aria-label="anchor" href="#planned-methods"></a>
-</h3>
-<ul>
-<li>
-<code>step_select_fstatistic</code> using ANOVA for classification and r2 converted to the f-statistic for regression</li>
-<li>
-<code>step_select_chi2</code> for classifications</li>
-</ul>
-</div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
