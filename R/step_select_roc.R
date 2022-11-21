@@ -14,12 +14,19 @@
 #' @param role For model terms created by this step, what analysis role should
 #'  they be assigned?. By default, the function assumes that resulting distances
 #'  will be used as predictors in a model.
-#' @param threshold A numeric value, in AUC units, where predictors with ROC
-#'  AUC values _larger_ than the threshold will be retained. A value of `NA`
-#'  implies that this criterion will be ignored.
 #' @param top_p An integer that will be used to select the predictors with the
 #'  largest ROC AUC values. A value of `NA` implies that this criterion will be
 #'  ignored.
+#' @param threshold A numeric value between 0 and 1 representing the percentile
+#'   of best scoring features to select. For example `threshold = 0.9` will
+#'   retain only predictors with scores in the top 90th percentile and a smaller
+#'   threshold will select more features. Note that `top_p` and `threshold` are
+#'   mutually exclusive but either can be used in conjunction with `cutoff` to
+#'   select the top-ranked features and those that have filter scores that are
+#'   larger than the cutoff value.
+#' @param cutoff A numeric value where predictors with _larger_ROC AUC scores
+#'   than the cutoff will be retained. A value of `NA` implies that this
+#'   criterion will be ignored.
 #' @param exclude A character vector of predictor names that will be removed
 #'  from the data. This will be set when `prep()` is used on the recipe and
 #'  should not be set by the user.
@@ -41,9 +48,11 @@
 #' @export
 #' @details
 #'
-#' The recipe will stop if both `top_p` and `threshold` are left unspecified.
+#' The recipe will stop if all of `top_p`, `threshold` and `cutoff` are left
+#' unspecified.
 #'
 #' The ROC AUC will be set to be 1 - AUC if the value is less than 0.50.
+#'
 #' @examples
 #' data(cells, package = "modeldata")
 #'
@@ -66,16 +75,10 @@
 #'   prep()
 #'
 #' rec %>% juice(all_predictors()) %>% names()
-step_select_roc <- function(recipe,
-                           ...,
-                           outcome,
-                           role = "predictor",
-                           trained = FALSE,
-                           threshold = NA,
-                           top_p = NA,
-                           exclude = NULL,
-                           skip = FALSE,
-                           id = recipes::rand_id("select_roc")) {
+step_select_roc <-
+  function(recipe, ..., outcome, role = "predictor", trained = FALSE,
+           threshold = NA, top_p = NA, cutoff = NA, exclude = NULL,
+           skip = FALSE, id = recipes::rand_id("select_roc")) {
   recipes::add_step(
     recipe,
     step_select_roc_new(
@@ -83,8 +86,9 @@ step_select_roc <- function(recipe,
       outcome = outcome,
       role = role,
       trained = trained,
-      threshold = threshold,
       top_p = top_p,
+      threshold = threshold,
+      cutoff = cutoff,
       exclude = exclude,
       skip = skip,
       id = id
@@ -93,15 +97,17 @@ step_select_roc <- function(recipe,
 }
 
 step_select_roc_new <-
-  function(terms, outcome, role, trained, threshold, top_p, exclude, skip, id) {
+  function(terms, outcome, role, trained, top_p, threshold, cutoff, exclude,
+           skip, id) {
     recipes::step(
       subclass = "select_roc",
       terms = terms,
       outcome = outcome,
       role = role,
       trained = trained,
-      threshold = threshold,
       top_p = top_p,
+      threshold = threshold,
+      cutoff = cutoff,
       exclude = exclude,
       skip = skip,
       id = id
@@ -149,7 +155,8 @@ prep.step_select_roc <- function(x, training, info = NULL, ...) {
 
     # filter
     scores <- purrr::map_dbl(training[, x_names], ~ roc_calc(.x, training[[y_name]]))
-    exclude_chr <- dual_filter(scores, x$top_p, x$threshold, maximize = TRUE)
+    exclude_chr <- dual_filter(scores, x$top_p, x$threshold, x$cutoff,
+                               maximize = TRUE)
   } else {
     exclude_chr <- character()
   }
@@ -159,8 +166,9 @@ prep.step_select_roc <- function(x, training, info = NULL, ...) {
     outcome = x$outcome,
     role = x$role,
     trained = TRUE,
-    threshold = x$threshold,
     top_p = x$top_p,
+    threshold = x$threshold,
+    cutoff = x$cutoff,
     exclude = exclude_chr,
     skip = x$skip,
     id = x$id
@@ -170,7 +178,8 @@ prep.step_select_roc <- function(x, training, info = NULL, ...) {
 #' @export
 bake.step_select_roc <- function(object, new_data, ...) {
   if (length(object$exclude) > 0) {
-    new_data <- new_data %>% dplyr::select(-dplyr::one_of(object$exclude))
+    new_data <- new_data %>%
+      dplyr::select(-dplyr::one_of(object$exclude))
   }
   new_data
 }
@@ -202,7 +211,8 @@ tunable.step_select_roc <- function(x, ...) {
     name = c("top_p", "threshold"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
-      list(pkg = "dials", fun = "threshold", range = c(0, 1))
+      list(pkg = "dials", fun = "threshold", range = c(0, 1)),
+      list(pkg = "colino", fun = "cutoff")
     ),
     source = "recipe",
     component = "step_select_roc",

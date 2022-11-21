@@ -1,4 +1,4 @@
 library(testthat)
-library(recipeselectors)
+library(colino)
 
-test_check("recipeselectors")
+test_check("colino")

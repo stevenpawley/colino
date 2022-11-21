@@ -55,62 +55,82 @@ check_criteria <- function(top_p, threshold, cl) {
   invisible(NULL)
 }
 
-dual_filter <- function(x, top_p, threshold, maximize) {
-  na_x <- x[ is.na(x)]
-  x <- x[!is.na(x)]
-  x <- sort(x)
-  if (maximize) {
-    x <- rev(x)
+#' Select features using `top_p` or `threshold`.
+#'
+#' Feature selection using either the `top_p` or `threshold` features OR
+#' `cutoff` where cutoff refers to the absolute numeric value of the feature
+#' importance scores.
+#'
+#' @details
+#' `dual_filter` selects feature that are selected using either (`top_p`,
+#' `threshold`) or `cutoff` or both. If top_p/threshold and cutoff are both used
+#' then features are selected using OR. For example, if top_p selects features 1
+#' & 2, and threshold selects features 1 & 3, then the selected features =
+#' 1,2,3.
+#'
+#' @param x a named numeric vector of scores per feature
+#' @param top_p an integer specifying the number of top-performing features to
+#'   retain
+#' @param threshold a numeric with percentile of top-performing features to
+#'   retain. For example, `threshold = 0.9` will only retain features that are
+#'   in the top 90th percentile. A smaller value of threshold will select
+#'   more features.
+#' @param cutoff a numeric with the value that represents the cutoff in the
+#'   scores in `x` by which to retain/discard features.
+#' @param maximize logical to indicate whether `top_p`, `threshold` and `cutoff`
+#'   are used to keep features where high scores = 'best' (maximize = TRUE) or
+#'   where low scores = 'best' (maximize = FALSE).
+#'
+#' @return character vector of feature names to exclude
+#' @keywords internal
+dual_filter <- function(x, top_p, threshold, cutoff, maximize) {
+  if (!is.na(top_p) & !is.na(threshold)) {
+    rlang::abort("`top_p` and `threshold` are mutually exclusive")
   }
+
+  na_x <- x[is.na(x)]
+  x <- x[!is.na(x)]
+  x <- sort(x, decreasing = maximize)
+
   p <- length(x)
 
+  # assign logical selection variable using top_p
   if (!is.na(top_p)) {
     top_p_lgl <- seq_along(x) <= top_p
   } else {
     top_p_lgl <- rep(FALSE, p)
   }
 
-  if (!is.na(threshold)) {
-    if (maximize) {
-      threshold_lgl <- x >= threshold
-    } else {
-      threshold_lgl <- x <= threshold
-    }
-  } else {
-    threshold_lgl <- rep(FALSE, p)
-  }
-  keep_lgl <- top_p_lgl | threshold_lgl
-  c(names(x)[!keep_lgl], names(na_x))
-}
-
-select_percentile <- function(x, top_p, threshold, maximize) {
-  # filter a named vector by the top_p features or using a percentile
-  # threshold
-
-  x <- x[!is.na(x)]
-
+  # assign logical selection variable using threshold
   if (!is.na(threshold)) {
     p_to_exceed <- stats::quantile(x, threshold)
 
     if (maximize) {
-      removals <- x < p_to_exceed
+      threshold_lgl <- x >= p_to_exceed
     } else {
-      removals <- x >= p_to_exceed
+      threshold_lgl <- x < p_to_exceed
     }
-
-    removals <- names(removals[removals])
 
   } else {
-    if (maximize) {
-      x <- sort(x, decreasing = TRUE)
-    } else {
-      x <- sort(x, decreasing = FALSE)
-    }
-
-    removals <- names(x[-seq_len(top_p)])
+    threshold_lgl <- rep(FALSE, p)
   }
 
-  removals
+  # assign logical selection variable using cutoff
+  if (!is.na(cutoff)) {
+    if (maximize) {
+      cutoff_lgl <- x >= cutoff
+    } else {
+      cutoff_lgl <- x <= cutoff
+    }
+
+  } else {
+    cutoff_lgl <- rep(FALSE, p)
+  }
+
+  keep_lgl <- top_p_lgl | threshold_lgl | cutoff_lgl
+  excluded <- c(names(x)[!keep_lgl], names(na_x))
+
+  return(excluded)
 }
 
 check_outcome <- function(y) {

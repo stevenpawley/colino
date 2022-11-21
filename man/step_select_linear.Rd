@@ -16,6 +16,7 @@ step_select_linear(
   mixture = NULL,
   top_p = NA,
   threshold = NA,
+  cutoff = NA,
   exclude = NULL,
   scores = NULL,
   skip = FALSE,
@@ -51,13 +52,17 @@ proportion of L1 regularization (i.e. lasso) in the model. When mixture =
 1, it is a pure lasso model while mixture = 0 indicates that ridge
 regression is being used (specific engines only).}
 
-\item{top_p}{An integer with the number of best scoring features to select.}
-
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
-of best scoring features to select. Features with scores that are _larger_
-than the specified threshold will be retained, for example `threshold =
-0.9` will retain only predictors with scores in the top 90th percentile.
-Note that this overrides `top_p`.}
+of best scoring features to select. For example `threshold = 0.9` will
+retain only predictors with scores in the top 90th percentile and a smaller
+threshold will select more features. Note that `top_p` and `threshold` are
+mutually exclusive but either can be used in conjunction with `cutoff` to
+select the top-ranked features and those that have filter scores that are
+larger than the cutoff value.}
+
+\item{cutoff}{A numeric value where predictors with _larger_ absolute filter
+scores than the cutoff will be retained. A value of `NA` implies that this
+criterion will be ignored.}
 
 \item{exclude}{A character vector of predictor names that will be removed
 from the data. This will be set when `prep()` is used on the recipe and

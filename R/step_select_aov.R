@@ -14,12 +14,19 @@
 #' @param role For model terms created by this step, what analysis role should
 #'  they be assigned? By default, the function assumes that resulting distances
 #'  will be used as predictors in a model.
-#' @param threshold A numeric value, in p-value units, where predictors with
-#'  _smaller_ than the threshold will be retained. A value of `NA`
-#'  implies that this criterion will be ignored.
-#' @param top_p An integer that will be used to select the predictors with the
-#'  smallest p-values. A value of `NA` implies that this criterion will be
-#'  ignored.
+#' @param cutoff A numeric value, in -log10(p-value) units, where predictors
+#'   with _larger_ than the cutoff will be retained. A value of `NA` implies
+#'   that this criterion will be ignored.
+#' @param top_p An integer that will be used to select the `top_p` predictors
+#'   with the smallest p-values. A value of `NA` implies that this criterion
+#'   will be ignored.
+#' @param threshold A numeric value between 0 and 1 representing the percentile
+#'   of best scoring features to select. For example `threshold = 0.9` will
+#'   retain only predictors with scores in the top 90th percentile and a smaller
+#'   threshold will select more features. Note that `top_p` and `threshold` are
+#'   mutually exclusive but either can be used in conjunction with `cutoff` to
+#'   select the top-ranked features and those that are smaller than the cutoff
+#'   value.
 #' @param exclude A character vector of predictor names that will be removed
 #'  from the data. This will be set when `prep()` is used on the recipe and
 #'  should not be set by the user.
@@ -40,16 +47,21 @@
 #' @export
 #' @details
 #'
-#' The recipe will stop if both `top_p` and `threshold` are left unspecified. If
-#' both are used, they are combined via 'or'.
+#' The recipe will stop if both `top_p`, `threshold` or `cutoff` are left
+#' unspecified. If both are used, they are combined via 'or'.
 #'
 #' @examples
 #' data(ames, package = "modeldata")
 #'
 #' rec <-
 #'   recipe(Sale_Price ~ ., data = ames) %>%
-#'   step_select_aov(all_nominal(), -all_outcomes(), outcome = "Sale_Price",
-#'                   top_p = 1, threshold = 0.001) %>%
+#'   step_select_aov(
+#'     all_nominal(),
+#'     -all_outcomes(),
+#'     outcome = "Sale_Price",
+#'     top_p = 1,
+#'     cutoff = -log10(0.01)
+#'   ) %>%
 #'   prep()
 #'
 #' rec %>%
@@ -58,36 +70,46 @@
 #'
 #' tidy(rec, number = 1)
 step_select_aov <-
-  function(recipe, ..., outcome, role = "predictor", trained = FALSE,
-           threshold = NA, top_p = NA, exclude = NULL, skip = FALSE,
+  function(recipe,
+           ...,
+           outcome,
+           role = "predictor",
+           trained = FALSE,
+           top_p = NA,
+           threshold = NA,
+           cutoff = NA,
+           exclude = NULL,
+           skip = FALSE,
            id = recipes::rand_id("select_aov")) {
-  recipes::add_step(
-    recipe,
-    step_select_aov_new(
-      terms = recipes::ellipse_check(...),
-      outcome = outcome,
-      role = role,
-      trained = trained,
-      threshold = threshold,
-      top_p = top_p,
-      exclude = exclude,
-      skip = skip,
-      id = id
+    recipes::add_step(
+      recipe,
+      step_select_aov_new(
+        terms = recipes::ellipse_check(...),
+        outcome = outcome,
+        role = role,
+        trained = trained,
+        top_p = top_p,
+        threshold = threshold,
+        cutoff = cutoff,
+        exclude = exclude,
+        skip = skip,
+        id = id
+      )
     )
-  )
-}
+  }
 
 step_select_aov_new <-
-  function(terms, outcome, role, trained, threshold, top_p,
-           exclude, skip, id) {
+  function(terms, outcome, role, trained, top_p, threshold, cutoff, exclude,
+           skip, id) {
     recipes::step(
       subclass = "select_aov",
       terms = terms,
       outcome = outcome,
       role = role,
       trained = trained,
-      threshold = threshold,
       top_p = top_p,
+      threshold = threshold,
+      cutoff = cutoff,
       exclude = exclude,
       skip = skip,
       id = id
@@ -126,9 +148,10 @@ prep.step_select_aov <- function(x, training, info = NULL, ...) {
       dplyr::filter(term != "Residuals") %>%
       pull(`Pr(>F)`, name = "term")
 
-    scores <- sort(scores)
+    scores <- -log10(scores)
 
-    exclude_chr <- dual_filter(scores, x$top_p, x$threshold, maximize = FALSE)
+    exclude_chr <- dual_filter(scores, x$top_p, x$threshold, x$cutoff,
+                               maximize = TRUE)
   } else {
     exclude_chr <- character()
   }
@@ -138,8 +161,9 @@ prep.step_select_aov <- function(x, training, info = NULL, ...) {
     outcome = x$outcome,
     role = x$role,
     trained = TRUE,
-    threshold = x$threshold,
     top_p = x$top_p,
+    threshold = x$threshold,
+    cutoff = x$cutoff,
     exclude = exclude_chr,
     skip = x$skip,
     id = x$id
@@ -183,7 +207,8 @@ tunable.step_select_aov <- function(x, ...) {
     name = c("top_p", "threshold"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
-      list(pkg = "dials", fun = "threshold", range = c(-10, -1))
+      list(pkg = "dials", fun = "threshold", range = c(-10, -1)),
+      list(pkg = "colino", fun = "cutoff"),
     ),
     source = "recipe",
     component = "step_select_aov",

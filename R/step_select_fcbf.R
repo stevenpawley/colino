@@ -2,7 +2,7 @@
 #'
 #' `step_select_fcbf` creates a *specification* of a recipe step that selects a
 #' subset of  predictors using the FCBF algorithm. The number of features
-#' retained depends on the `threshold` parameter: a lower threshold
+#' retained depends on the `cutoff` parameter: a lower cutoff
 #' selects more features.
 #'
 #' @param recipe A recipe object. The step will be added to the sequence of
@@ -10,8 +10,8 @@
 #' @param ... One or more selector functions to choose which variables are
 #'   affected by the step, e.g. all_numeric_predictors(). Any features not
 #'   selected will be retained in the recipe.
-#' @param threshold A numeric value between 0 and 1 representing the symmetrical
-#'   uncertainty threshold used by the FCBF algorithm. Lower thresholds allow
+#' @param cutoff A numeric value between 0 and 1 representing the symmetrical
+#'   uncertainty cutoff used by the FCBF algorithm. Lower cutoffs allow
 #'   more features to be selected.
 #' @param outcome A character string specifying the name of the response
 #'   variable. Automatically inferred from the recipe (if possible) when not
@@ -41,10 +41,10 @@
 #' have high correlation to the outcome, and low correlation to other features.
 #'
 #' Symmetrical uncertainty (SU) is used to indicate the degree of correlation
-#' between predictors and the outcome. A threshold value for SU must be
-#' specified, and smaller thresholds values will result in more features being
-#' selected by the algorithm. Appropriate thresholds are data-dependent, so
-#' different threshold values may need to be explored. It is not possible to
+#' between predictors and the outcome. A cutoff value for SU must be
+#' specified, and smaller cutoff values will result in more features being
+#' selected by the algorithm. Appropriate cutoffs are data-dependent, so
+#' different cutoff values may need to be explored. It is not possible to
 #' specify an exact number of features that should be retained
 #'
 #' The algorithm requires categorical features, so continuous features are
@@ -75,7 +75,7 @@
 #'
 #' # Create a preprocessing recipe including FCBF
 #' my_recipe <- recipe(Species ~ ., data = iris) %>%
-#'     step_select_fcbf(all_predictors(), threshold = 0.001)
+#'     step_select_fcbf(all_predictors(), cutoff = 0.001)
 #'
 #' prepped <- prep(my_recipe, iris)
 #'
@@ -85,7 +85,7 @@
 step_select_fcbf <-
   function(recipe,
            ...,
-           threshold = 0.025,
+           cutoff = 0.025,
            outcome = NA,
            cutpoint = 0.5,
            features_retained = NA,
@@ -98,16 +98,16 @@ step_select_fcbf <-
     recipes_pkg_check(required_pkgs.step_select_fcbf())
 
     # check arguments
-    if (is.na(threshold)) {
-      rlang::abort("threshold must be a number between 0-1")
+    if (is.na(cutoff)) {
+      rlang::abort("cutoff must be a number between 0-1")
     }
 
     if (is.na(cutpoint)) {
       rlang::abort("cutpoint must be a number between 0-1")
     }
 
-    if (!is.numeric(threshold) | threshold >= 1 | threshold <= 0) {
-      rlang::abort("threshold must be a number between 0-1")
+    if (!is.numeric(cutoff) | cutoff >= 1 | cutoff <= 0) {
+      rlang::abort("cutoff must be a number between 0-1")
     }
 
     if (!is.numeric(cutpoint) | cutpoint >= 1 | cutpoint <= 0) {
@@ -118,7 +118,7 @@ step_select_fcbf <-
       recipe,
       step_select_fcbf_new(
         terms = enquos(...),
-        threshold = threshold,
+        cutoff = cutoff,
         outcome = outcome,
         cutpoint = cutpoint,
         features_retained = features_retained,
@@ -134,7 +134,7 @@ step_select_fcbf <-
 #' @importFrom recipes step
 step_select_fcbf_new <-
   function(terms,
-           threshold,
+           cutoff,
            outcome,
            cutpoint,
            features_retained,
@@ -146,7 +146,7 @@ step_select_fcbf_new <-
     step(
       subclass = "select_fcbf",
       terms = terms,
-      threshold = threshold,
+      cutoff = cutoff,
       outcome = outcome,
       cutpoint = cutpoint,
       features_retained = features_retained,
@@ -193,7 +193,7 @@ prep.step_select_fcbf <- function(x, training, info = NULL, ...) {
     FCBF_helper(
       preds = training[, preds_fcbf, drop = FALSE],
       outcome = training[, outcome_col, drop = TRUE],
-      threshold = x$threshold,
+      cutoff = x$cutoff,
       cutpoint = x$cutpoint
     )
 
@@ -211,7 +211,7 @@ prep.step_select_fcbf <- function(x, training, info = NULL, ...) {
 
   step_select_fcbf_new(
     terms = x$terms,
-    threshold = x$threshold,
+    cutoff = x$cutoff,
     outcome = outcome_col,
     cutpoint = x$cutpoint,
     features_retained = feats_retained,
@@ -288,7 +288,7 @@ discretize_var <- function(numeric_feat, cutpoint) {
   return(as.factor(results))
 }
 
-FCBF_helper <- function(preds, outcome, threshold, cutpoint) {
+FCBF_helper <- function(preds, outcome, cutoff, cutpoint) {
   # Takes a set of predictors, does FCBF for feature selection, and
   # returns the names of the features to keep.
   preds <- preds %>%
@@ -301,7 +301,7 @@ FCBF_helper <- function(preds, outcome, threshold, cutpoint) {
     .ns = "FCBF",
     feature_table = preds,
     target_vector = outcome,
-    minimum_su = threshold,
+    minimum_su = cutoff,
     verbose = FALSE,
     samples_in_rows = TRUE
   )

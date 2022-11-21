@@ -21,10 +21,15 @@
 #' @param top_p An integer with the number of best scoring features to
 #'   select.
 #' @param threshold A numeric value between 0 and 1 representing the percentile
-#'   of best scoring features to select. Features with scores that are _larger_
-#'   than the specified threshold will be retained, for example `threshold =
-#'   0.9` will retain only predictors with scores in the top 90th percentile.
-#'   Note that this overrides `top_p`.
+#'   of best scoring features to select. For example `threshold = 0.9` will
+#'   retain only predictors with scores in the top 90th percentile and a smaller
+#'   threshold will select more features. Note that `top_p` and `threshold` are
+#'   mutually exclusive but either can be used in conjunction with `cutoff` to
+#'   select the top-ranked features and those that have filter scores that are
+#'   larger than the cutoff value.
+#' @param cutoff A numeric value where predictors with _larger_ absolute filter
+#'   scores than the cutoff will be retained. A value of `NA` implies that this
+#'   criterion will be ignored.
 #' @param type The entropy measure. One of c("infogain", "gainratio",
 #'   "symuncert"). The default is 'infogain'.
 #' @param threads An integer specifying the number of threads to use for
@@ -52,7 +57,8 @@
 #' @export
 #' @details
 #'
-#' The recipe will stop if both `top_p` and `threshold` are left unspecified.
+#' The recipe will stop if both `top_p`, `threshold` and `cutoff` are left
+#' unspecified.
 #'
 #' @examples
 #' library(recipes)
@@ -79,6 +85,7 @@ step_select_infgain <- function(
   trained = FALSE,
   top_p = NA,
   threshold = NA,
+  cutoff = NA,
   type = "infogain",
   nbins = 5,
   threads = 1,
@@ -100,6 +107,7 @@ step_select_infgain <- function(
       role = role,
       top_p = top_p,
       threshold = threshold,
+      cutoff = cutoff,
       type = type,
       threads = threads,
       nbins = nbins,
@@ -114,8 +122,8 @@ step_select_infgain <- function(
 
 # wrapper around 'step' function that sets the class of new step objects
 step_select_infgain_new <- function(terms, role, trained, outcome, top_p,
-                                    threshold, type, threads, nbins, exclude,
-                                    scores, skip, id) {
+                                    threshold, cutoff, type, threads, nbins,
+                                    exclude, scores, skip, id) {
   recipes::step(
     subclass = "select_infgain",
     terms = terms,
@@ -124,6 +132,7 @@ step_select_infgain_new <- function(terms, role, trained, outcome, top_p,
     outcome = outcome,
     top_p = top_p,
     threshold = threshold,
+    cutoff = cutoff,
     type = type,
     threads = threads,
     nbins = nbins,
@@ -172,7 +181,7 @@ prep.step_select_infgain <- function(x, training, info = NULL, ...) {
     res$score <- rlang::set_names(res$score, res$variable)
 
     exclude <-
-      select_percentile(res$score, x$top_p, x$threshold, maximize = TRUE)
+      dual_filter(res$score, x$top_p, x$threshold, x$cutoff, maximize = TRUE)
 
   } else {
     exclude <- character()
@@ -185,6 +194,7 @@ prep.step_select_infgain <- function(x, training, info = NULL, ...) {
     outcome = y_name,
     top_p = x$top_p,
     threshold = x$threshold,
+    cutoff = x$cutoff,
     type = x$type,
     threads = x$threads,
     nbins = x$nbins,
@@ -234,7 +244,8 @@ tunable.step_select_infgain <- function(x, ...) {
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
       list(pkg = "colino", fun = "entropy", values = values_entropy),
-      list(pkg = "dials", fun = "threshold", range = c(0, 1))
+      list(pkg = "dials", fun = "threshold", range = c(0, 1)),
+      list(pkg = "colino", fun = "cutoff")
     ),
     source = "recipe",
     component = "step_select_infgain",

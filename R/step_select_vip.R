@@ -22,10 +22,15 @@
 #' @param top_p An integer with the number of best scoring features to
 #'   select.
 #' @param threshold A numeric value between 0 and 1 representing the percentile
-#'   of best scoring features to select. Features with scores that are _larger_
-#'   than the specified threshold will be retained, for example `threshold =
-#'   0.9` will retain only predictors with scores in the top 90th percentile.
-#'   Note that this overrides `top_p`.
+#'   of best scoring features to select. For example `threshold = 0.9` will
+#'   retain only predictors with scores in the top 90th percentile and a smaller
+#'   threshold will select more features. Note that `top_p` and `threshold` are
+#'   mutually exclusive but either can be used in conjunction with `cutoff` to
+#'   select the top-ranked features and those that have filter scores that are
+#'   larger than the cutoff value.
+#' @param cutoff A numeric value where predictors with _larger_ absolute filter
+#'   scores than the cutoff will be retained. A value of `NA` implies that this
+#'   criterion will be ignored.
 #' @param exclude A character vector of predictor names that will be removed
 #'  from the data. This will be set when `prep()` is used on the recipe and
 #'  should not be set by the user.
@@ -41,6 +46,11 @@
 #'
 #' @return a `step_select_vip` object.
 #' @export
+#'
+#' @details
+#' The recipe will stop if all of `top_p`, `threshold` and `cutoff` are left
+#' unspecified.
+#'
 #' @examples
 #' library(recipes)
 #' library(parsnip)
@@ -76,6 +86,7 @@ step_select_vip <- function(
   model = NULL,
   top_p = NA,
   threshold = NA,
+  cutoff = NA,
   exclude = NULL,
   scores = NULL,
   skip = FALSE,
@@ -94,6 +105,7 @@ step_select_vip <- function(
       model = model,
       top_p = top_p,
       threshold = threshold,
+      cutoff = cutoff,
       exclude = exclude,
       scores = scores,
       skip = skip,
@@ -105,7 +117,7 @@ step_select_vip <- function(
 # wrapper around 'step' function that sets the class of new step objects
 #' @importFrom recipes step
 step_select_vip_new <- function(terms, role, trained, outcome, model, top_p,
-                                threshold, exclude, scores, skip, id) {
+                                threshold, cutoff, exclude, scores, skip, id) {
   recipes::step(
     subclass = "select_vip",
     terms = terms,
@@ -115,6 +127,7 @@ step_select_vip_new <- function(terms, role, trained, outcome, model, top_p,
     model = model,
     top_p = top_p,
     threshold = threshold,
+    cutoff = cutoff,
     exclude = exclude,
     scores = scores,
     skip = skip,
@@ -146,7 +159,7 @@ prep.step_select_vip <- function(x, training, info = NULL, ...) {
     res$score <- rlang::set_names(res$score, res$variable)
 
     exclude <-
-      select_percentile(res$score, x$top_p, x$threshold, maximize = TRUE)
+      dual_filter(res$score, x$top_p, x$threshold, x$cutoff, maximize = TRUE)
 
   } else {
     exclude <- character()
@@ -160,6 +173,7 @@ prep.step_select_vip <- function(x, training, info = NULL, ...) {
     model = x$model,
     top_p = x$top_p,
     threshold = x$threshold,
+    cutoff = x$cutoff,
     exclude = exclude,
     scores = res,
     skip = x$skip,
@@ -205,7 +219,8 @@ tunable.step_select_vip <- function(x, ...) {
     name = c("top_p", "threshold"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
-      list(pkg = "dials", fun = "threshold", range = c(0, 1))
+      list(pkg = "dials", fun = "threshold", range = c(0, 1)),
+      list(pkg = "colino", fun = "cutoff")
     ),
     source = "recipe",
     component = "step_select_vip",

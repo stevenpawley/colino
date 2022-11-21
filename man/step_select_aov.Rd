@@ -11,8 +11,9 @@ step_select_aov(
   outcome,
   role = "predictor",
   trained = FALSE,
-  threshold = NA,
   top_p = NA,
+  threshold = NA,
+  cutoff = NA,
   exclude = NULL,
   skip = FALSE,
   id = recipes::rand_id("select_aov")
@@ -38,13 +39,21 @@ will be used as predictors in a model.}
 \item{trained}{A logical to indicate if the quantities for preprocessing have
 been estimated.}
 
-\item{threshold}{A numeric value, in p-value units, where predictors with
-_smaller_ than the threshold will be retained. A value of `NA`
-implies that this criterion will be ignored.}
+\item{top_p}{An integer that will be used to select the `top_p` predictors
+with the smallest p-values. A value of `NA` implies that this criterion
+will be ignored.}
 
-\item{top_p}{An integer that will be used to select the predictors with the
-smallest p-values. A value of `NA` implies that this criterion will be
-ignored.}
+\item{threshold}{A numeric value between 0 and 1 representing the percentile
+of best scoring features to select. For example `threshold = 0.9` will
+retain only predictors with scores in the top 90th percentile and a smaller
+threshold will select more features. Note that `top_p` and `threshold` are
+mutually exclusive but either can be used in conjunction with `cutoff` to
+select the top-ranked features and those that are smaller than the cutoff
+value.}
+
+\item{cutoff}{A numeric value, in -log10(p-value) units, where predictors
+with _larger_ than the cutoff will be retained. A value of `NA` implies
+that this criterion will be ignored.}
 
 \item{exclude}{A character vector of predictor names that will be removed
 from the data. This will be set when `prep()` is used on the recipe and
@@ -71,16 +80,21 @@ predictors using their relationship with a numerical outcome as measured
 using an ANOVA F-test.
 }
 \details{
-The recipe will stop if both `top_p` and `threshold` are left unspecified. If
-both are used, they are combined via 'or'.
+The recipe will stop if both `top_p`, `threshold` or `cutoff` are left
+unspecified. If both are used, they are combined via 'or'.
 }
 \examples{
 data(ames, package = "modeldata")
 
 rec <-
   recipe(Sale_Price ~ ., data = ames) \%>\%
-  step_select_aov(all_nominal(), -all_outcomes(), outcome = "Sale_Price",
-                  top_p = 1, threshold = 0.001) \%>\%
+  step_select_aov(
+    all_nominal(),
+    -all_outcomes(),
+    outcome = "Sale_Price",
+    top_p = 1,
+    cutoff = -log10(0.01)
+  ) \%>\%
   prep()
 
 rec \%>\%

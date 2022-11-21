@@ -18,10 +18,15 @@
 #' @param top_p An integer that will be used to select the number of best
 #'   scoring features.
 #' @param threshold A numeric value between 0 and 1 representing the percentile
-#'   of best scoring features to select. Features with scores that are _larger_
-#'   than the specified threshold will be retained, for example `threshold =
-#'   0.9` will retain only predictors with scores in the top 90th percentile.
-#'   Note that this overrides `top_p`.
+#'   of best scoring features to select. For example `threshold = 0.9` will
+#'   retain only predictors with scores in the top 90th percentile and a smaller
+#'   threshold will select more features. Note that `top_p` and `threshold` are
+#'   mutually exclusive but either can be used in conjunction with `cutoff` to
+#'   select the top-ranked features and those that have filter scores that are
+#'   larger than the cutoff value.
+#' @param cutoff A numeric value where predictors with _larger_ absolute filter
+#'   scores than the cutoff will be retained. A value of `NA` implies that this
+#'   criterion will be ignored.
 #' @param threads An integer specifying the number of threads to use for
 #'   processing. The default = 0 uses all available threads.
 #' @param exclude A character vector of predictor names that will be removed
@@ -43,7 +48,8 @@
 #' @export
 #' @details
 #'
-#' The recipe will stop if both `top_p` and `threshold` are left unspecified.
+#' The recipe will stop if all of `top_p`, `threshold` and `cutoff` are left
+#' unspecified.
 #'
 #' @examples
 #' library(recipes)
@@ -70,6 +76,7 @@ step_select_mrmr <- function(
   trained = FALSE,
   top_p = NA,
   threshold = NA,
+  cutoff = NA,
   threads = 0,
   exclude = NULL,
   scores = NULL,
@@ -89,6 +96,7 @@ step_select_mrmr <- function(
       role = role,
       top_p = top_p,
       threshold = threshold,
+      cutoff = cutoff,
       threads = threads,
       exclude = exclude,
       scores = scores,
@@ -98,9 +106,9 @@ step_select_mrmr <- function(
   )
 }
 
-step_select_mrmr_new <- function(terms, role, trained, outcome, top_p,
-                                 threshold, threads, exclude, scores, skip,
-                                 id) {
+step_select_mrmr_new <-
+  function(terms, role, trained, outcome, top_p, threshold, cutoff, threads,
+           exclude, scores, skip, id) {
     recipes::step(
       subclass = "select_mrmr",
       terms = terms,
@@ -109,6 +117,7 @@ step_select_mrmr_new <- function(terms, role, trained, outcome, top_p,
       outcome = outcome,
       top_p = top_p,
       threshold = threshold,
+      cutoff = cutoff,
       threads = threads,
       exclude = exclude,
       scores = scores,
@@ -148,7 +157,7 @@ prep.step_select_mrmr <- function(x, training, info = NULL, ...) {
     )
 
     exclude <-
-      select_percentile(res$score, x$top_p, x$threshold, maximize = TRUE)
+      dual_filter(res$score, x$top_p, x$threshold, x$cutoff, maximize = TRUE)
 
   } else {
     exclude <- character()
@@ -161,6 +170,7 @@ prep.step_select_mrmr <- function(x, training, info = NULL, ...) {
     outcome = y_name,
     top_p = x$top_p,
     threshold = x$threshold,
+    cutoff = x$cutoff,
     threads = x$threads,
     exclude = exclude,
     scores = res,
@@ -207,7 +217,8 @@ tunable.step_select_mrmr <- function(x, ...) {
     name = c("top_p", "threshold"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
-      list(pkg = "dials", fun = "threshold", range = c(0, 1))
+      list(pkg = "dials", fun = "threshold", range = c(0, 1)),
+      list(pkg = "colino", fun = "cutoff")
     ),
     source = "recipe",
     component = "step_select_mrmr",

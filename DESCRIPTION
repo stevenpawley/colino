@@ -51,4 +51,5 @@ Suggests:
     Boruta,
     care,
     modeldata,
-    covr
+    covr,
+    FSinR
