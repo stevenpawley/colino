@@ -67,6 +67,7 @@ a subset of predictors based on the ranking of variable importance using a
 <span>  min_n <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  top_p <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  scores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  skip <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -136,10 +137,18 @@ are required for the node to be split further.</p></dd>
 
 <dt>threshold</dt>
 <dd><p>A numeric value between 0 and 1 representing the percentile
-of best scoring features to select. Features with scores that are _larger_
-than the specified threshold will be retained, for example `threshold =
-0.9` will retain only predictors with scores in the top 90th percentile.
-Note that this overrides `top_p`.</p></dd>
+of best scoring features to select. For example `threshold = 0.9` will
+retain only predictors with scores in the top 90th percentile and a smaller
+threshold will select more features. Note that `top_p` and `threshold` are
+mutually exclusive but either can be used in conjunction with `cutoff` to
+select the top-ranked features and those that have filter scores that are
+larger than the cutoff value.</p></dd>
+
+
+<dt>cutoff</dt>
+<dd><p>A numeric value where predictors with _larger_ absolute filter
+scores than the cutoff will be retained. A value of `NA` implies that this
+criterion will be ignored.</p></dd>
 
 
 <dt>exclude</dt>
@@ -198,22 +207,12 @@ or 'scores' to return the scores for each variable.</p></dd>
 <span class="r-in"><span>                     threshold <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">prepped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="va">rec</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dual_filter(res$score, x$top_p, x$threshold, x$cutoff, maximize = TRUE):</span> `top_p` and `threshold` are mutually exclusive</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">preproc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/juice.html" class="external-link">juice</a></span><span class="op">(</span><span class="va">prepped</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in fully_trained(object):</span> object 'prepped' not found</span>
 <span class="r-in"><span><span class="va">prepped</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Recipe</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Inputs:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       role #variables</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    outcome          1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  predictor         56</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Training data contained 2019 data points and no missing data.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Operations:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Variable importance feature selection (50 excluded)</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'prepped' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

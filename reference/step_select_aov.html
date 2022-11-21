@@ -60,8 +60,9 @@ using an ANOVA F-test.</p>
 <span>  <span class="va">outcome</span>,</span>
 <span>  role <span class="op">=</span> <span class="st">"predictor"</span>,</span>
 <span>  trained <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  threshold <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  top_p <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  skip <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  id <span class="op">=</span> <span class="fu">recipes</span><span class="fu">::</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/rand_id.html" class="external-link">rand_id</a></span><span class="op">(</span><span class="st">"select_aov"</span><span class="op">)</span></span>
@@ -100,16 +101,26 @@ will be used as predictors in a model.</p></dd>
 been estimated.</p></dd>
 
 
-<dt>threshold</dt>
-<dd><p>A numeric value, in p-value units, where predictors with
-_smaller_ than the threshold will be retained. A value of `NA`
-implies that this criterion will be ignored.</p></dd>
-
-
 <dt>top_p</dt>
-<dd><p>An integer that will be used to select the predictors with the
-smallest p-values. A value of `NA` implies that this criterion will be
-ignored.</p></dd>
+<dd><p>An integer that will be used to select the `top_p` predictors
+with the smallest p-values. A value of `NA` implies that this criterion
+will be ignored.</p></dd>
+
+
+<dt>threshold</dt>
+<dd><p>A numeric value between 0 and 1 representing the percentile
+of best scoring features to select. For example `threshold = 0.9` will
+retain only predictors with scores in the top 90th percentile and a smaller
+threshold will select more features. Note that `top_p` and `threshold` are
+mutually exclusive but either can be used in conjunction with `cutoff` to
+select the top-ranked features and those that are smaller than the cutoff
+value.</p></dd>
+
+
+<dt>cutoff</dt>
+<dd><p>A numeric value, in -log10(p-value) units, where predictors
+with _larger_ than the cutoff will be retained. A value of `NA` implies
+that this criterion will be ignored.</p></dd>
 
 
 <dt>exclude</dt>
@@ -144,8 +155,8 @@ TRUE as it may affect the computations for subsequent operations.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The recipe will stop if both `top_p` and `threshold` are left unspecified. If
-both are used, they are combined via 'or'.</p>
+    <p>The recipe will stop if both `top_p`, `threshold` or `cutoff` are left
+unspecified. If both are used, they are combined via 'or'.</p>
     </div>
 
     <div class="section level2">
@@ -154,8 +165,13 @@ both are used, they are combined via 'or'.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">rec</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipe</a></span><span class="op">(</span><span class="va">Sale_Price</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">ames</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">step_select_aov</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_nominal</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_outcomes</a></span><span class="op">(</span><span class="op">)</span>, outcome <span class="op">=</span> <span class="st">"Sale_Price"</span>,</span></span>
-<span class="r-in"><span>                  top_p <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">step_select_aov</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_nominal</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    <span class="op">-</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_outcomes</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    outcome <span class="op">=</span> <span class="st">"Sale_Price"</span>,</span></span>
+<span class="r-in"><span>    top_p <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>    cutoff <span class="op">=</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log10</a></span><span class="op">(</span><span class="fl">0.01</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">rec</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
@@ -163,31 +179,28 @@ both are used, they are combined via 'or'.</p>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "MS_SubClass"    "MS_Zoning"      "Lot_Shape"      "Land_Contour"  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "Lot_Config"     "Neighborhood"   "Condition_1"    "Condition_2"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Overall_Cond"   "Roof_Style"     "Roof_Matl"      "Exterior_1st"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "Exterior_2nd"   "Mas_Vnr_Type"   "Foundation"     "Bsmt_Cond"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "Bsmt_Exposure"  "BsmtFin_Type_1" "Heating_QC"     "Central_Air"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "Garage_Type"    "Garage_Finish"  "Pool_QC"        "Sale_Type"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "Bldg_Type"      "House_Style"    "Overall_Cond"   "Roof_Style"    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "Roof_Matl"      "Exterior_1st"   "Exterior_2nd"   "Mas_Vnr_Type"  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "Foundation"     "Bsmt_Cond"      "Bsmt_Exposure"  "BsmtFin_Type_1"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "Heating"        "Heating_QC"     "Central_Air"    "Functional"    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] "Garage_Type"    "Garage_Finish"  "Pool_QC"        "Sale_Type"     </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">rec</span>, number <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 16 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 12 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    terms          id              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Functional     select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> House_Style    select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Bldg_Type      select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Heating        select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Alley          select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Misc_Feature   select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Garage_Cond    select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Exter_Cond     select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> BsmtFin_Type_2 select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Utilities      select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> Land_Slope     select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> Paved_Drive    select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> Sale_Condition select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> Electrical     select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">15</span> Fence          select_aov_6VIKl</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">16</span> Street         select_aov_6VIKl</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Alley          select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Misc_Feature   select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Garage_Cond    select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Exter_Cond     select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> BsmtFin_Type_2 select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Utilities      select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Land_Slope     select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Paved_Drive    select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Sale_Condition select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Electrical     select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> Fence          select_aov_u0XZm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> Street         select_aov_u0XZm</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -60,8 +60,9 @@
 <span>  <span class="va">outcome</span>,</span>
 <span>  role <span class="op">=</span> <span class="st">"predictor"</span>,</span>
 <span>  trained <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  threshold <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  top_p <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  threshold <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  cutoff <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  exact <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fdr <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  exclude <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -102,16 +103,26 @@ will be used as predictors in a model.</p></dd>
 been estimated.</p></dd>
 
 
-<dt>threshold</dt>
-<dd><p>A numeric value, in p-value/FDR units, where predictors with
-_smaller_ than the threshold will be retained. A value of `NA`
-implies that this criterion will be ignored.</p></dd>
-
-
 <dt>top_p</dt>
 <dd><p>An integer that will be used to select the predictors with the
 smallest p/FDR values. A value of `NA` implies that this criterion will be
 ignored.</p></dd>
+
+
+<dt>threshold</dt>
+<dd><p>A numeric value between 0 and 1 representing the percentile
+of best scoring features to select. For example `threshold = 0.9` will
+retain only predictors with scores in the top 90th percentile and a smaller
+threshold will select more features. Note that `top_p` and `threshold` are
+mutually exclusive but either can be used in conjunction with `cutoff` to
+select the top-ranked features and those that have filter scores that are
+larger than the cutoff value.</p></dd>
+
+
+<dt>cutoff</dt>
+<dd><p>A numeric value, in p-value/FDR units, where predictors with
+_smaller_ than the threshold will be retained. A value of `NA`
+implies that this criterion will be ignored.</p></dd>
 
 
 <dt>exact</dt>
@@ -154,8 +165,8 @@ TRUE as it may affect the computations for subsequent operations.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The recipe will stop if both `top_p` and `threshold` are left unspecified. If
-both are used, they are combined via 'or'.</p>
+    <p>The recipe will stop if all of `top_p`, `threshold` and `cutoff` are left
+unspecified. If both are used, they are combined via 'or'.</p>
 <p>The Benjamini-Hochberg FDR correction is used (see [stats::p.adjust()]).</p>
 <p>Warnings from [stats::chisq.test()] and [stats::fisher.test()] are suppressed.</p>
     </div>
@@ -169,25 +180,13 @@ both are used, they are combined via 'or'.</p>
 <span class="r-in"><span>  <span class="fu">step_select_xtab</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_nominal</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_outcomes</a></span><span class="op">(</span><span class="op">)</span>, outcome <span class="op">=</span> <span class="st">"Attrition"</span>,</span></span>
 <span class="r-in"><span>                   top_p <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">0.001</span>, exact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dual_filter(scores, x$top_p, x$threshold, x$cutoff, maximize = FALSE):</span> `top_p` and `threshold` are mutually exclusive</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">rec</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/juice.html" class="external-link">juice</a></span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_nominal</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_outcomes</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "BusinessTravel"          "EnvironmentSatisfaction"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "JobInvolvement"          "MaritalStatus"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "OverTime"               </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in fully_trained(object):</span> object 'rec' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">rec</span>, number <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 9 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   terms                    id               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> JobSatisfaction          select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> WorkLifeBalance          select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Department               select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> RelationshipSatisfaction select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Gender                   select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Education                select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> PerformanceRating        select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> EducationField           select_xtab_68gxg</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">9</span> JobRole                  select_xtab_68gxg</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in tidy(rec, number = 1):</span> object 'rec' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
