@@ -7,7 +7,7 @@
 step_select_fcbf(
   recipe,
   ...,
-  cutoff = 0.025,
+  threshold = 0.025,
   outcome = NA,
   cutpoint = 0.5,
   features_retained = NA,
@@ -26,8 +26,8 @@ operations for this recipe.}
 affected by the step, e.g. all_numeric_predictors(). Any features not
 selected will be retained in the recipe.}
 
-\item{cutoff}{A numeric value between 0 and 1 representing the symmetrical
-uncertainty cutoff used by the FCBF algorithm. Lower cutoffs allow
+\item{threshold}{A numeric value between 0 and 1 representing the symmetrical
+uncertainty threshold used by the FCBF algorithm. Lower thresholds allow
 more features to be selected.}
 
 \item{outcome}{A character string specifying the name of the response
@@ -66,7 +66,7 @@ Returns the recipe object, with step_select_fcbf added to the
 \description{
 `step_select_fcbf` creates a *specification* of a recipe step that selects a
 subset of  predictors using the FCBF algorithm. The number of features
-retained depends on the `cutoff` parameter: a lower cutoff
+retained depends on the `threshold` parameter: a lower threshold
 selects more features.
 }
 \details{
@@ -75,10 +75,10 @@ algorithm as described in Yu & Liu (2003). FCBF selects features that
 have high correlation to the outcome, and low correlation to other features.
 
 Symmetrical uncertainty (SU) is used to indicate the degree of correlation
-between predictors and the outcome. A cutoff value for SU must be
-specified, and smaller cutoff values will result in more features being
-selected by the algorithm. Appropriate cutoffs are data-dependent, so
-different cutoff values may need to be explored. It is not possible to
+between predictors and the outcome. A threshold value for SU must be
+specified, and smaller threshold values will result in more features being
+selected by the algorithm. Appropriate thresholds are data-dependent, so
+different threshold values may need to be explored. It is not possible to
 specify an exact number of features that should be retained
 
 The algorithm requires categorical features, so continuous features are
@@ -99,7 +99,7 @@ data("iris")
 
 # Create a preprocessing recipe including FCBF
 my_recipe <- recipe(Species ~ ., data = iris) \%>\%
-    step_select_fcbf(all_predictors(), cutoff = 0.001)
+    step_select_fcbf(all_predictors(), threshold = 0.001)
 
 prepped <- prep(my_recipe, iris)
 

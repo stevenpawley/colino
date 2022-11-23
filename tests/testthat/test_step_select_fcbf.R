@@ -43,15 +43,50 @@ test_that("step_select_fcbf rejects bad threshold or cutpoint argument input", {
   skip_if_not_installed("FCBF")
 
   rec <- recipe(Species ~ ., data = iris)
-  error_cut <- "cutpoint must be a number"
-  error_su <- "threshold must be a number"
 
-  expect_error(rec %>% step_select_fcbf(threshold = 1.5), error_su)
-  expect_error(rec %>% step_select_fcbf(threshold = NA), error_su)
-  expect_error(rec %>% step_select_fcbf(threshold = 0), error_su)
-  expect_error(rec %>% step_select_fcbf(threshold = "median"), error_su)
-  expect_error(rec %>% step_select_fcbf(threshold = TRUE), error_su)
-  expect_error(rec %>% step_select_fcbf(threshold = -0.01), error_su)
+  expect_error(
+    rec %>%
+      step_select_fcbf(threshold = 1.5) %>%
+      prep(),
+    "(0, 1)"
+  )
+
+  expect_error(
+    rec %>%
+      step_select_fcbf(threshold = NA) %>%
+      prep(),
+    "No usable"
+  )
+
+  expect_error(
+    rec %>%
+      step_select_fcbf(threshold = 0) %>%
+      prep(),
+    "(0, 1)"
+  )
+
+  expect_error(
+    rec %>%
+      step_select_fcbf(threshold = "median") %>%
+      prep(),
+    "should be numeric"
+  )
+
+  expect_error(
+    rec %>%
+      step_select_fcbf(threshold = TRUE) %>%
+      prep(),
+    "should be numeric"
+  )
+
+  expect_error(
+    rec %>%
+      step_select_fcbf(threshold = -0.01) %>%
+      prep(),
+    "(0, 1)"
+  )
+
+  error_cut <- "`cutpoint` must be a number between 0-1"
   expect_error(rec %>% step_select_fcbf(cutpoint = 1.5), error_cut)
   expect_error(rec %>% step_select_fcbf(cutpoint = NA), error_cut)
   expect_error(rec %>% step_select_fcbf(cutpoint = 0), error_cut)
