@@ -176,3 +176,9 @@ print.step_select_boruta <-
 tidy.step_select_boruta <- function(x, type = "terms", ...) {
   tidy_filter_step(x, type)
 }
+
+#' @rdname required_pkgs.colino
+#' @export
+required_pkgs.step_select_boruta <- function(x, ...) {
+  c("colino", "Boruta")
+}

@@ -271,3 +271,9 @@ tunable.step_select_linear <- function(x, ...) {
     component_id = x$id
   )
 }
+
+#' @rdname required_pkgs.colino
+#' @export
+required_pkgs.step_select_linear <- function(x, ...) {
+  c("colino")
+}
