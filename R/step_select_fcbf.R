@@ -264,7 +264,7 @@ print.step_select_fcbf <-
 #' @keywords internal
 #' @export
 required_pkgs.step_select_fcbf <- function(x, ...) {
-  c("FCBF")
+  c("colino", "FCBF")
 }
 
 discretize_var <- function(numeric_feat, cutpoint) {
