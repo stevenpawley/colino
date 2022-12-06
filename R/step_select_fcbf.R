@@ -260,11 +260,11 @@ print.step_select_fcbf <-
 #' the steps can function properly within parallel processing schemes.
 #' @param x A recipe step
 #' @return A character vector
-#' @rdname required_pkgs.embed
+#' @rdname required_pkgs.colino
 #' @keywords internal
 #' @export
 required_pkgs.step_select_fcbf <- function(x, ...) {
-  c("FCBF")
+  c("colino", "FCBF")
 }
 
 discretize_var <- function(numeric_feat, cutpoint) {
