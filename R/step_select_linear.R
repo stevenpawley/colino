@@ -257,7 +257,7 @@ tidy.step_select_linear <- function(x, type = "terms", ...) {
 #' @export
 tunable.step_select_linear <- function(x, ...) {
   tibble(
-    name = c("top_p", "threshold", "penalty", "mixture"),
+    name = c("top_p", "threshold", "cutoff", "penalty", "mixture"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
       list(pkg = "dials", fun = "threshold", range = c(0, 1)),
