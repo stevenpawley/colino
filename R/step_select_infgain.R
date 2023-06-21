@@ -240,7 +240,7 @@ tidy.step_select_infgain <- function(x, type = "terms", ...) {
 #' @export
 tunable.step_select_infgain <- function(x, ...) {
   tibble::tibble(
-    name = c("top_p", "threshold"),
+    name = c("top_p", "entropy", "threshold", "cutoff"),
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
       list(pkg = "colino", fun = "entropy", values = values_entropy),
