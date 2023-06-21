@@ -102,8 +102,8 @@ my_recipe <- recipe(Species ~ ., data = iris) \%>\%
     step_select_fcbf(all_predictors(), threshold = 0.001)
 
 prepped <- prep(my_recipe, iris)
+new_data <- bake(prepped, new_data = iris)
 
-new_data <- juice(prepped, iris)
 prepped
 }
 \references{

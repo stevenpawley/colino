@@ -112,8 +112,7 @@ rec <-
    all_predictors(),
    outcome = "class",
    model = base_model,
-   top_p = 10,
-   threshold = 0.9
+   top_p = 10
  )
 
 prepped <- prep(rec)

@@ -61,7 +61,7 @@
 #' rec <-
 #'   recipe(Attrition ~ ., data = attrition) %>%
 #'   step_select_xtab(all_nominal(), -all_outcomes(), outcome = "Attrition",
-#'                    top_p = 1, threshold = 0.001, exact = TRUE) %>%
+#'                    top_p = 1, cutoff = 0.001, exact = TRUE) %>%
 #'   prep()
 #'
 #' rec %>% juice(all_nominal(), -all_outcomes()) %>% names()

@@ -16,6 +16,9 @@
 #'   been estimated.
 #' @param engine A supported rand_forest engine that is supported by parsnip.
 #'   The default is "glm".
+#' @param top_p An integer that will be used to select the `top_p` predictors
+#'   with the smallest p-values. A value of `NA` implies that this criterion
+#'   will be ignored.
 #' @param threshold A numeric value between 0 and 1 representing the percentile
 #'   of best scoring features to select. For example `threshold = 0.9` will
 #'   retain only predictors with scores in the top 90th percentile and a smaller
@@ -60,7 +63,6 @@
 #'  step_select_linear(
 #'    all_predictors(),
 #'    outcome = "class",
-#'    top_p = 10,
 #'    threshold = 0.9
 #'  )
 #'

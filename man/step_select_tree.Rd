@@ -111,8 +111,7 @@ data(cells, package = "modeldata")
 # create a preprocessing recipe
 rec <-
  recipe(class ~ ., data = cells[, -1]) \%>\%
- step_select_tree(all_predictors(), outcome = "class", top_p = 10,
-                  threshold = 0.9)
+ step_select_tree(all_predictors(), outcome = "class", top_p = 10)
 
 prepped <- prep(rec)
 

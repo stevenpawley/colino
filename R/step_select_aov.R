@@ -144,9 +144,9 @@ prep.step_select_aov <- function(x, training, info = NULL, ...) {
     scores <- aov(f, training[, c(y_name, x_names)])
     scores <- as_tibble(summary(scores)[[1]], rownames = "term")
     scores <- scores %>%
-      dplyr::mutate(term = trimws(term)) %>%
-      dplyr::filter(term != "Residuals") %>%
-      pull(`Pr(>F)`, name = "term")
+      dplyr::mutate(term = trimws(.data$term)) %>%
+      dplyr::filter(.data$term != "Residuals") %>%
+      dplyr::pull("Pr(>F)", name = "term")
 
     scores <- -log10(scores)
 
@@ -208,7 +208,7 @@ tunable.step_select_aov <- function(x, ...) {
     call_info = list(
       list(pkg = "colino", fun = "top_p"),
       list(pkg = "dials", fun = "threshold", range = c(-10, -1)),
-      list(pkg = "colino", fun = "cutoff"),
+      list(pkg = "colino", fun = "cutoff")
     ),
     source = "recipe",
     component = "step_select_aov",

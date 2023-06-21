@@ -52,6 +52,10 @@ proportion of L1 regularization (i.e. lasso) in the model. When mixture =
 1, it is a pure lasso model while mixture = 0 indicates that ridge
 regression is being used (specific engines only).}
 
+\item{top_p}{An integer that will be used to select the `top_p` predictors
+with the smallest p-values. A value of `NA` implies that this criterion
+will be ignored.}
+
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. For example `threshold = 0.9` will
 retain only predictors with scores in the top 90th percentile and a smaller
@@ -107,7 +111,6 @@ rec <-
  step_select_linear(
    all_predictors(),
    outcome = "class",
-   top_p = 10,
    threshold = 0.9
  )
 

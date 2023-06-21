@@ -102,8 +102,7 @@ rec <-
  step_select_mrmr(
    all_predictors(),
    outcome = "class",
-   top_p = 10,
-   threshold = 0.9
+   top_p = 10
  )
 
 prepped <- prep(rec)

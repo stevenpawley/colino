@@ -47,7 +47,7 @@ top_p <- function(range = c(1L, 4L), trans = NULL) {
 #' cutoff(c(3.5, 15))
 cutoff <- function(range = c(dials::unknown(), dials::unknown()), trans = NULL) {
   dials::new_quant_param(
-    type = "numeric",
+    type = "double",
     range = range,
     inclusive = c(FALSE, FALSE),
     trans = trans,

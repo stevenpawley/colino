@@ -70,8 +70,8 @@
 #'  step_select_infgain(
 #'    all_predictors(),
 #'    outcome = "class",
-#'    top_p = 10,
-#'    threshold = 0.9
+#'    threshold = 0.9,
+#'    id = "infgain"
 #'  )
 #'
 #' prepped <- prep(rec)

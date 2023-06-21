@@ -22,7 +22,6 @@ Description: Provides supervised selection methods to be used as preprocessing
     method and a subset of features are retained.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 URL: https://stevenpawley.github.io/colino
 BugReports: https://github.com/stevenpawley/colino/issues
 Depends:
@@ -41,7 +40,7 @@ Imports:
     scales,
     pROC,
     stats
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Suggests: 
     testthat,
     roxygen2,

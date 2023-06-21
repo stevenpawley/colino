@@ -91,7 +91,7 @@ data(cells, package = "modeldata")
 
 rec <-
   recipe(class ~ ., data = cells[, -1]) \%>\%
-  step_select_roc(all_predictors(), outcome = "class", top_p = 10, threshold = 0.9) \%>\%
+  step_select_roc(all_predictors(), outcome = "class", top_p = 10, cutoff = 0.9) \%>\%
   prep()
 
 rec \%>\% bake(all_predictors(), new_data = NULL) \%>\% names()
@@ -103,7 +103,7 @@ rec <-
     all_predictors(),
     outcome = "class",
     top_p = 1,
-    threshold = 0.99
+    cutoff = 0.99
   ) \%>\%
   prep()
 

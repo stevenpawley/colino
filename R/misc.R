@@ -147,8 +147,8 @@ get_outcome <- function(x, training, info) {
 
   } else {
     outcome_col <- info %>%
-      filter(role == 'outcome') %>%
-      pull(variable)
+      dplyr::filter(.data$role == 'outcome') %>%
+      dplyr::pull("variable")
   }
 
   if (length(outcome_col) > 1) {

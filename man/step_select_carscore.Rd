@@ -106,7 +106,7 @@ rec <-
    all_predictors(),
    outcome = "Price",
    top_p = 5,
-   threshold = 0.7
+   cutoff = 0.7
  )
 
 prepped <- prep(rec)
