@@ -200,18 +200,25 @@ unspecified.</p>
 <span class="r-in"><span><span class="co"># create a preprocessing recipe</span></span></span>
 <span class="r-in"><span><span class="va">rec</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipe</a></span><span class="op">(</span><span class="va">class</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">cells</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span> <span class="fu">step_select_tree</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_predictors</a></span><span class="op">(</span><span class="op">)</span>, outcome <span class="op">=</span> <span class="st">"class"</span>, top_p <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>                  threshold <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="fu">step_select_tree</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_predictors</a></span><span class="op">(</span><span class="op">)</span>, outcome <span class="op">=</span> <span class="st">"class"</span>, top_p <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">prepped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="va">rec</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in step_select_tree():</span> <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `step_select_tree()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `dual_filter()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> `top_p` and `threshold` are mutually exclusive</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">preproc_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">prepped</span>, new_data <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'prepped' not found</span>
 <span class="r-in"><span><span class="va">prepped</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'prepped' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Recipe</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────────────</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Inputs </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of variables by role</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> outcome:    1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> predictor: 56</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Training information </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Training data contained 2019 data points and no incomplete rows.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ── Operations </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Variable importance feature selection (14 excluded)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

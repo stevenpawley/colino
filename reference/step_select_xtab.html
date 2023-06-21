@@ -178,17 +178,27 @@ unspecified. If both are used, they are combined via 'or'.</p>
 <span class="r-in"><span><span class="va">rec</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipe</a></span><span class="op">(</span><span class="va">Attrition</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">attrition</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">step_select_xtab</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_nominal</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_outcomes</a></span><span class="op">(</span><span class="op">)</span>, outcome <span class="op">=</span> <span class="st">"Attrition"</span>,</span></span>
-<span class="r-in"><span>                   top_p <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">0.001</span>, exact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>                   top_p <span class="op">=</span> <span class="fl">1</span>, cutoff <span class="op">=</span> <span class="fl">0.001</span>, exact <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in step_select_xtab():</span> <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `step_select_xtab()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `dual_filter()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> `top_p` and `threshold` are mutually exclusive</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">rec</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/juice.html" class="external-link">juice</a></span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_nominal</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_outcomes</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'rec' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "BusinessTravel"          "EnvironmentSatisfaction"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "JobInvolvement"          "MaritalStatus"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "OverTime"               </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">rec</span>, number <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'rec' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 9 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   terms                    id               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> JobSatisfaction          select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> WorkLifeBalance          select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Department               select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> RelationshipSatisfaction select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Gender                   select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Education                select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> PerformanceRating        select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> EducationField           select_xtab_u05VQ</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">9</span> JobRole                  select_xtab_u05VQ</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
