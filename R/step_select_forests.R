@@ -89,10 +89,19 @@ step_select_forests <- function(
 
   engines <- parsnip::show_engines("rand_forest")$engine
 
-  if (!engine %in% parsnip::show_engines("rand_forest")$engine)
+  if (!engine %in% parsnip::show_engines("rand_forest")$engine){
+
+    # make message more clear if someone is trying to use aorsf
+    if(engine == 'aorsf'){
+      rlang::abort("the bonsai package must be loaded to use aorsf engine")
+    }
+
     rlang::abort(
       paste("Engine argument should be one of", paste(engines, collapse = ", "))
     )
+
+  }
+
 
   recipes::add_step(
     recipe,
@@ -167,6 +176,11 @@ prep.step_select_forests <- function(x, training, info = NULL, ...) {
       mtry = x$mtry,
       min_n = x$min_n
     )
+
+    # aorsf package uses 'permute' instead of 'permutation'
+    if(x$engine == 'aorsf' & x$options$importance == 'permutation'){
+      x$options$importance <- 'permute'
+    }
 
     model_spec <-
       parsnip::make_call("rand_forest", args = model_args, ns = "parsnip")

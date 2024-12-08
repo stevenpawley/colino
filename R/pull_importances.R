@@ -151,6 +151,37 @@ pull_importances._ranger <- function(object, scaled = TRUE, ...) {
 }
 
 #' @export
+pull_importances._ObliqueForestClassification <- function(object, scaled = TRUE, ...) {
+  pull_importance_aorsf(object, scaled, ...)
+}
+
+#' @export
+pull_importances._ObliqueForestRegression <- function(object, scaled = TRUE, ...) {
+  pull_importance_aorsf(object, scaled, ...)
+}
+
+#' @export
+pull_importances._ObliqueForestSurvival <- function(object, scaled = TRUE, ...) {
+  pull_importance_aorsf(object, scaled, ...)
+}
+
+pull_importance_aorsf <- function(object, scaled, ...){
+
+  call <- rlang::call2(.fn = "orsf_vi", .ns = "aorsf", object = object$fit)
+
+  scores <- rlang::eval_tidy(call)
+
+  scores <- tibble(feature = names(scores), importance = as.numeric(scores))
+
+  if (scaled)
+    scores$importance <- rescale(scores$importance)
+
+  scores
+
+}
+
+
+#' @export
 pull_importances._cubist <- function(object, scaled = TRUE, ...) {
   scores <- object$fit$usage
 
