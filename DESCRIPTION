@@ -51,4 +51,6 @@ Suggests:
     care,
     modeldata,
     covr,
-    FSinR
+    FSinR,
+    bonsai,
+    aorsf
