@@ -56,4 +56,5 @@ Suggests:
     modeldata,
     covr,
     bonsai,
-    aorsf
+    aorsf,
+    xgboost
