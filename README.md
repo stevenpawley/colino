@@ -1,5 +1,10 @@
 # colino
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/stevenpawley/colino/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stevenpawley/colino/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/stevenpawley/colino/graph/badge.svg)](https://app.codecov.io/gh/stevenpawley/colino)
+<!-- badges: end -->
+
 The goal of colino is to provide supervised feature selection steps to be used
 with the tidymodels recipes package. The overall focus of the package is on 
 filter-based feature selection methods. Permutation score methods that use
