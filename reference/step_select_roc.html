@@ -99,20 +99,20 @@ of best scoring features to select. For example `threshold = 0.9` will
 retain only predictors with scores in the top 90th percentile and a smaller
 threshold will select more features. Note that `top_p` and `threshold` are
 mutually exclusive but either can be used in conjunction with `cutoff` to
-select the top-ranked features and those that have filter scores that are
-larger than the cutoff value.</p></dd>
+select the top-ranked features and those that are smaller than the cutoff
+value.</p></dd>
 
 
 <dt id="arg-top-p">top_p<a class="anchor" aria-label="anchor" href="#arg-top-p"></a></dt>
-<dd><p>An integer that will be used to select the predictors with the
-largest ROC AUC values. A value of `NA` implies that this criterion will be
-ignored.</p></dd>
+<dd><p>An integer that will be used to select the `top_p` predictors
+with the smallest p-values. A value of `NA` implies that this criterion
+will be ignored.</p></dd>
 
 
 <dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
-<dd><p>A numeric value where predictors with _larger_ROC AUC scores
-than the cutoff will be retained. A value of `NA` implies that this
-criterion will be ignored.</p></dd>
+<dd><p>A numeric value, in -log10(p-value) units, where predictors
+with _larger_ than the cutoff will be retained. A value of `NA` implies
+that this criterion will be ignored.</p></dd>
 
 
 <dt id="arg-exclude">exclude<a class="anchor" aria-label="anchor" href="#arg-exclude"></a></dt>
@@ -139,10 +139,9 @@ TRUE as it may affect the computations for subsequent operations.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An updated version of `recipe` with the new step
- added to the sequence of existing steps (if any). For the
- `tidy` method, a tibble with a `terms` column for which predictors were
-removed.</p>
+    <p>An updated version of `recipe` with the new step added to the
+ sequence of existing steps (if any). For the `tidy` method, a tibble with a
+ `terms` column for which predictors were removed.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

@@ -68,8 +68,8 @@ operations for this recipe.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>One or more selector functions to choose which variables are
-affected by the step. See selections() for more details. For the tidy
+<dd><p>One or more selector functions to choose which predictors are
+affected by the step. See [selections()] for more details. For the `tidy`
 method, these are not currently used.</p></dd>
 
 
@@ -127,7 +127,9 @@ or 'scores' to return the scores for each variable.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>a `step_select_boruta` object.</p>
+    <p>An updated version of `recipe` with the new step added to the
+ sequence of existing steps (if any). For the `tidy` method, a tibble with a
+ `terms` column for which predictors were removed.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
