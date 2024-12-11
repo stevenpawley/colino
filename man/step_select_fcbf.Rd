@@ -92,6 +92,7 @@ The FCBF algorithm is implemented by the Bioconductor package 'FCBF', which
 can be installed with BiocManager::install("FCBF")
 }
 \examples{
+\dontrun{
 library(recipes)
 library(colino)
 
@@ -100,12 +101,12 @@ data("iris")
 
 # Create a preprocessing recipe including FCBF
 my_recipe <- recipe(Species ~ ., data = iris) \%>\%
-    step_select_fcbf(all_predictors(), threshold = 0.001)
+  step_select_fcbf(all_predictors(), threshold = 0.001)
 
-prepped <- prep(my_recipe, iris)
-new_data <- bake(prepped, new_data = iris)
-
-prepped
+. prepped <- prep(my_recipe, iris)
+ new_data <- bake(prepped, new_data = iris)
+ prepped
+}
 }
 \references{
 Yu, L. and Liu, H. (2003); Feature Selection for High-Dimensional

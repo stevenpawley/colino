@@ -53,6 +53,7 @@
 #' @importFrom recipes rand_id add_step recipes_pkg_check
 #' @importFrom rlang enquos .data
 #' @examples
+#' \dontrun{
 #' library(recipes)
 #' library(colino)
 #'
@@ -61,13 +62,12 @@
 #'
 #' # Create a preprocessing recipe including FCBF
 #' my_recipe <- recipe(Species ~ ., data = iris) %>%
-#'     step_select_fcbf(all_predictors(), threshold = 0.001)
+#'   step_select_fcbf(all_predictors(), threshold = 0.001)
 #'
-#' prepped <- prep(my_recipe, iris)
-#' new_data <- bake(prepped, new_data = iris)
-#'
-#' prepped
-
+#'. prepped <- prep(my_recipe, iris)
+#'  new_data <- bake(prepped, new_data = iris)
+#'  prepped
+#' }
 step_select_fcbf <-
   function(recipe,
            ...,
