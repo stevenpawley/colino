@@ -24,8 +24,8 @@ step_select_boruta(
 \item{recipe}{A recipe object. The step will be added to the sequence of
 operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which variables are
-affected by the step. See selections() for more details. For the tidy
+\item{...}{One or more selector functions to choose which predictors are
+affected by the step. See [selections()] for more details. For the `tidy`
 method, these are not currently used.}
 
 \item{outcome}{A character string with the name of the response variable to
@@ -61,7 +61,9 @@ tibble containing the variables that have been removed by the filter step,
 or 'scores' to return the scores for each variable.}
 }
 \value{
-a `step_select_boruta` object.
+An updated version of `recipe` with the new step added to the
+ sequence of existing steps (if any). For the `tidy` method, a tibble with a
+ `terms` column for which predictors were removed.
 }
 \description{
 `step_select_boruta` creates a *specification* of a recipe step that selects

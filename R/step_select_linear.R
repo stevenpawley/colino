@@ -4,51 +4,23 @@
 #' a subset of predictors based on the ranking of the magnitude of coefficients
 #' provided by a `parsnip::linear_reg` or `parsnip::logistic_reg` model.
 #'
-#' @param recipe A recipe object. The step will be added to the sequence of
-#'   operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are
-#'   affected by the step. See selections() for more details. For the tidy
-#'   method, these are not currently used.
+#' @inheritParams step_select_aov
+#' @inherit step_select_aov return
 #' @param outcome A character string with the name of the response variable to
 #'   use to calculate the feature importance scores.
 #' @param role Not used by this step since no new variables are created.
-#' @param trained A logical to indicate if the quantities for preprocessing have
-#'   been estimated.
 #' @param engine A supported rand_forest engine that is supported by parsnip.
 #'   The default is "glm".
-#' @param top_p An integer that will be used to select the `top_p` predictors
-#'   with the smallest p-values. A value of `NA` implies that this criterion
-#'   will be ignored.
-#' @param threshold A numeric value between 0 and 1 representing the percentile
-#'   of best scoring features to select. For example `threshold = 0.9` will
-#'   retain only predictors with scores in the top 90th percentile and a smaller
-#'   threshold will select more features. Note that `top_p` and `threshold` are
-#'   mutually exclusive but either can be used in conjunction with `cutoff` to
-#'   select the top-ranked features and those that have filter scores that are
-#'   larger than the cutoff value.
-#' @param cutoff A numeric value where predictors with _larger_ absolute filter
-#'   scores than the cutoff will be retained. A value of `NA` implies that this
-#'   criterion will be ignored.
 #' @param penalty A non-negative number representing the total amount of
 #'   regularization (specific engines only).
 #' @param mixture A number between zero and one (inclusive) that is the
 #'   proportion of L1 regularization (i.e. lasso) in the model. When mixture =
 #'   1, it is a pure lasso model while mixture = 0 indicates that ridge
 #'   regression is being used (specific engines only).
-#' @param exclude A character vector of predictor names that will be removed
-#'   from the data. This will be set when `prep()` is used on the recipe and
-#'   should not be set by the user.
 #' @param scores A tibble with 'variable' and 'scores' columns containing the
 #'   names of the variables and their feature importance scores. This parameter
 #'   is only produced after the recipe has been trained.
-#' @param skip A logical. Should the step be skipped when the recipe is baked by
-#'   bake.recipe()? While all operations are baked when prep.recipe() is run,
-#'   some operations may not be able to be conducted on new data (e.g.
-#'   processing the outcome variable(s)). Care should be taken when using skip =
-#'   TRUE as it may affect the computations for subsequent operations.
-#' @param id A character string that is unique to this step to identify it.
 #'
-#' @return a `step_select_linear` object.
 #' @export
 #' @examples
 #' library(recipes)

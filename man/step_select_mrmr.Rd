@@ -25,11 +25,11 @@ step_select_mrmr(
 }
 \arguments{
 \item{recipe}{A recipe object. The step will be added to the sequence of
-operations for this recipe}
+operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which variables are
-affected by the step. See selections() for more details. For the tidy
-method, these are not currently used}
+\item{...}{One or more selector functions to choose which predictors are
+affected by the step. See [selections()] for more details. For the `tidy`
+method, these are not currently used.}
 
 \item{outcome}{A character string specifying the name of response variable
 used to evaluate mRMR.}
@@ -37,22 +37,23 @@ used to evaluate mRMR.}
 \item{role}{Not used by this step since no new variables are created}
 
 \item{trained}{A logical to indicate if the quantities for preprocessing have
-been estimated}
+been estimated.}
 
-\item{top_p}{An integer that will be used to select the number of best
-scoring features.}
+\item{top_p}{An integer that will be used to select the `top_p` predictors
+with the smallest p-values. A value of `NA` implies that this criterion
+will be ignored.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. For example `threshold = 0.9` will
 retain only predictors with scores in the top 90th percentile and a smaller
 threshold will select more features. Note that `top_p` and `threshold` are
 mutually exclusive but either can be used in conjunction with `cutoff` to
-select the top-ranked features and those that have filter scores that are
-larger than the cutoff value.}
+select the top-ranked features and those that are smaller than the cutoff
+value.}
 
-\item{cutoff}{A numeric value where predictors with _larger_ absolute filter
-scores than the cutoff will be retained. A value of `NA` implies that this
-criterion will be ignored.}
+\item{cutoff}{A numeric value, in -log10(p-value) units, where predictors
+with _larger_ than the cutoff will be retained. A value of `NA` implies
+that this criterion will be ignored.}
 
 \item{threads}{An integer specifying the number of threads to use for
 processing. The default = 0 uses all available threads.}
@@ -80,7 +81,9 @@ tibble containing the variables that have been removed by the filter step,
 or 'scores' to return the scores for each variable.}
 }
 \value{
-A step_select_mrmr object.
+An updated version of `recipe` with the new step added to the
+ sequence of existing steps (if any). For the `tidy` method, a tibble with a
+ `terms` column for which predictors were removed.
 }
 \description{
 `step_select_mrmr` creates a *specification* of a recipe step that will apply

@@ -16,31 +16,16 @@
 #' dropped from the feature set and the procedure is repeated until no more
 #' 'tentative' features exist, or that a maximum number of runs are reached.
 #'
-#' @param recipe A recipe object. The step will be added to the sequence of
-#'   operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are
-#'   affected by the step. See selections() for more details. For the tidy
-#'   method, these are not currently used.
+#' @inheritParams step_select_aov
+#' @inherit step_select_aov return
 #' @param outcome A character string with the name of the response variable to
 #'   use to calculate the feature importance scores.
 #' @param role Not used by this step since no new variables are created.
-#' @param trained A logical to indicate if the quantities for preprocessing have
-#'   been estimated.
-#' @param exclude A character vector of predictor names that will be removed
-#'   from the data. This will be set when `prep()` is used on the recipe and
-#'   should not be set by the user.
 #' @param options A list of options to pass to `Boruta::Boruta()`. The defaults
 #'   use Boruta's defaults. *Note* that `x` and `y` should not be passed here.
 #' @param res The `Boruta::Boruta` object is stored here once this preprocessing
 #'   step has been trained by `prep.recipe()`.
-#' @param skip A logical. Should the step be skipped when the recipe is baked by
-#'   bake.recipe()? While all operations are baked when prep.recipe() is run,
-#'   some operations may not be able to be conducted on new data (e.g.
-#'   processing the outcome variable(s)). Care should be taken when using skip =
-#'   TRUE as it may affect the computations for subsequent operations.
-#' @param id A character string that is unique to this step to identify it.
 #'
-#' @return a `step_select_boruta` object.
 #' @export
 #' @examples
 #' library(recipes)

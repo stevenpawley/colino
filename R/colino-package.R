@@ -33,6 +33,7 @@
 #'
 #' @author Steven Pawley, \email{dr.stevenpawley@@gmail.com}
 
-#' @docType package
 #' @name colino
-NULL
+#' @keywords internal
+"_PACKAGE"
+

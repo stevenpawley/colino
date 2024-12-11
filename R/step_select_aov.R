@@ -41,12 +41,11 @@
 #' @return An updated version of `recipe` with the new step added to the
 #'  sequence of existing steps (if any). For the `tidy` method, a tibble with a
 #'  `terms` column for which predictors were removed.
-#' @keywords datagen
+#'
 #' @concept preprocessing
 #' @concept supervised_filter
 #' @export
 #' @details
-#'
 #' The recipe will stop if both `top_p`, `threshold` or `cutoff` are left
 #' unspecified. If both are used, they are combined via 'or'.
 #'

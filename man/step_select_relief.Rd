@@ -28,8 +28,8 @@ step_select_relief(
 \item{recipe}{A recipe object. The step will be added to the sequence of
 operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which variables are
-affected by the step. See selections() for more details. For the tidy
+\item{...}{One or more selector functions to choose which predictors are
+affected by the step. See [selections()] for more details. For the `tidy`
 method, these are not currently used.}
 
 \item{outcome}{A character string with the name of the response variable to
@@ -40,19 +40,21 @@ use to evaluate information gain value against the predictors.}
 \item{trained}{A logical to indicate if the quantities for preprocessing have
 been estimated.}
 
-\item{top_p}{An integer with the number of best scoring features to select.}
+\item{top_p}{An integer that will be used to select the `top_p` predictors
+with the smallest p-values. A value of `NA` implies that this criterion
+will be ignored.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the percentile
 of best scoring features to select. For example `threshold = 0.9` will
 retain only predictors with scores in the top 90th percentile and a smaller
 threshold will select more features. Note that `top_p` and `threshold` are
 mutually exclusive but either can be used in conjunction with `cutoff` to
-select the top-ranked features and those that have filter scores that are
-larger than the cutoff value.}
+select the top-ranked features and those that are smaller than the cutoff
+value.}
 
-\item{cutoff}{A numeric value where predictors with _larger_ absolute filter
-scores than the cutoff will be retained. A value of `NA` implies that this
-criterion will be ignored.}
+\item{cutoff}{A numeric value, in -log10(p-value) units, where predictors
+with _larger_ than the cutoff will be retained. A value of `NA` implies
+that this criterion will be ignored.}
 
 \item{neighbors}{An integer with the number of neighbors for find for each
 sampled instance. Default is 5.}
@@ -79,7 +81,9 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{x}{A `step_select_relief` object.}
 }
 \value{
-A step_select_relief object.
+An updated version of `recipe` with the new step added to the
+ sequence of existing steps (if any). For the `tidy` method, a tibble with a
+ `terms` column for which predictors were removed.
 }
 \description{
 Relief-based algorithms use nearest neighbors of randomly sampled

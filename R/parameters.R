@@ -76,7 +76,6 @@ entropy <- function(values = values_entropy) {
   dials::new_qual_param(
     type = "character",
     values = values,
-    default = "infogain",
     label = c(entropy = "Method used for entropy-based feature selection"),
     finalize = NULL
   )

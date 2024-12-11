@@ -22,9 +22,9 @@ step_select_fcbf(
 \item{recipe}{A recipe object. The step will be added to the sequence of
 operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which variables are
-affected by the step, e.g. all_numeric_predictors(). Any features not
-selected will be retained in the recipe.}
+\item{...}{One or more selector functions to choose which predictors are
+affected by the step. See [selections()] for more details. For the `tidy`
+method, these are not currently used.}
 
 \item{threshold}{A numeric value between 0 and 1 representing the symmetrical
 uncertainty threshold used by the FCBF algorithm. Lower thresholds allow
@@ -60,8 +60,9 @@ TRUE as it may affect the computations for subsequent operations.}
 \item{id}{A character string that is unique to this step to identify it.}
 }
 \value{
-Returns the recipe object, with step_select_fcbf added to the
-  sequence of operations for this recipe.
+An updated version of `recipe` with the new step added to the
+ sequence of existing steps (if any). For the `tidy` method, a tibble with a
+ `terms` column for which predictors were removed.
 }
 \description{
 `step_select_fcbf` creates a *specification* of a recipe step that selects a

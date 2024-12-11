@@ -4,45 +4,16 @@
 #'  filter predictors using their relationship with the outcome as measured
 #'  using statistical tests for association.
 #'
-#' @param recipe 	A recipe object. The step will be added to the sequence of
-#'   operations for this recipe.
-#' @param ... One or more selector functions to choose which predictors are
-#'  affected by the step. See [selections()] for more details. For the `tidy`
-#'  method, these are not currently used.
+#' @inheritParams step_select_aov
+#' @inherit step_select_aov return
 #' @param outcome A single character string that specifies a single categorical
 #'  variable to be used as the class.
 #' @param role For model terms created by this step, what analysis role should
 #'  they be assigned?. By default, the function assumes that resulting distances
 #'  will be used as predictors in a model.
-#' @param top_p An integer that will be used to select the predictors with the
-#'  smallest p/FDR values. A value of `NA` implies that this criterion will be
-#'  ignored.
-#' @param threshold A numeric value between 0 and 1 representing the percentile
-#'   of best scoring features to select. For example `threshold = 0.9` will
-#'   retain only predictors with scores in the top 90th percentile and a smaller
-#'   threshold will select more features. Note that `top_p` and `threshold` are
-#'   mutually exclusive but either can be used in conjunction with `cutoff` to
-#'   select the top-ranked features and those that have filter scores that are
-#'   larger than the cutoff value.
-#' @param cutoff A numeric value, in p-value/FDR units, where predictors with
-#'  _smaller_ than the threshold will be retained. A value of `NA`
-#'  implies that this criterion will be ignored.
 #' @param exact Should an exact test be used?
 #' @param fdr Should false discovery rates (FDR) be used instead of p-values?
-#' @param exclude A character vector of predictor names that will be removed
-#'  from the data. This will be set when `prep()` is used on the recipe and
-#'  should not be set by the user.
-#' @param trained A logical to indicate if the quantities for preprocessing have
-#'   been estimated.
-#' @param skip A logical. Should the step be skipped when the recipe is baked by
-#'   bake.recipe()? While all operations are baked when prep.recipe() is run,
-#'   some operations may not be able to be conducted on new data (e.g.
-#'   processing the outcome variable(s)). Care should be taken when using skip =
-#'   TRUE as it may affect the computations for subsequent operations.
-#' @param id 	A character string that is unique to this step to identify it.
-#' @return An updated version of `recipe` with the new step added to the
-#'  sequence of existing steps (if any). For the `tidy` method, a tibble with a
-#'  `terms` column for which predictors were removed.
+#'
 #' @keywords datagen
 #' @concept preprocessing
 #' @concept supervised_filter

@@ -5,11 +5,8 @@
 #' retained depends on the `threshold` parameter: a lower threshold
 #' selects more features.
 #'
-#' @param recipe A recipe object. The step will be added to the sequence of
-#'   operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are
-#'   affected by the step, e.g. all_numeric_predictors(). Any features not
-#'   selected will be retained in the recipe.
+#' @inheritParams step_select_aov
+#' @inherit step_select_aov return
 #' @param threshold A numeric value between 0 and 1 representing the symmetrical
 #'   uncertainty threshold used by the FCBF algorithm. Lower thresholds allow
 #'   more features to be selected.
@@ -26,14 +23,6 @@
 #'   by the FCBF algorithm. This parameter is only produced after the recipe has
 #'   been trained, and should not be specified by the user
 #' @param role Not used for this step since new variables are not created.
-#' @param trained A logical to indicate if the quantities for preprocessing have
-#'   been estimated.
-#' @param skip A logical. Should the step be skipped when the recipe is baked by
-#'   bake.recipe()? While all operations are baked when prep.recipe() is run,
-#'   some operations may not be able to be conducted on new data (e.g.
-#'   processing the outcome variable(s)). Care should be taken when using skip =
-#'   TRUE as it may affect the computations for subsequent operations.
-#' @param id A character string that is unique to this step to identify it.
 #'
 #' @details
 #' This function implements the fast correlation-based filter (FCBF)
@@ -55,9 +44,6 @@
 #'
 #' The FCBF algorithm is implemented by the Bioconductor package 'FCBF', which
 #' can be installed with BiocManager::install("FCBF")
-
-#' @return Returns the recipe object, with step_select_fcbf added to the
-#'   sequence of operations for this recipe.
 #'
 #' @references Yu, L. and Liu, H. (2003); Feature Selection for High-Dimensional
 #'   Data A Fast Correlation Based Filter Solution, Proc. 20th Intl. Conf. Mach.
