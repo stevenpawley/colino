@@ -14,7 +14,11 @@ Authors@R:
     person(given = "Rowan",
            family = "Jacques-Hamilton",
            role = c("aut"),
-           email = "rowan.jacques.hamilton@gmail.com"))
+           email = "rowan.jacques.hamilton@gmail.com"),
+    person(given = "Byron",
+           family = "Jaeger",
+           role = c("aut"),
+           email = "bjaeger@wakehealth.edu"))
 Maintainer: Steven Pawley <dr.stevenpawley@gmail.com>
 Description: Provides supervised selection methods to be used as preprocessing 
     steps alongside the 'recipes' package. These steps represent filter-based
