@@ -60,3 +60,48 @@ test_that("step_select_forests, execution using threshold", {
   expect_length(names(selected), 2)
 })
 
+test_that(
+  desc = "step_select_forests, execution using aorsf",
+  code = {
+
+    skip_if_not_installed('aorsf')
+    skip_if_not_installed('bonsai')
+
+    library(bonsai)
+
+    irisX <- iris[-5]
+    y <- iris$Species
+
+    # test selection by retaining features with scores >= 50th percentile
+    rec <- iris %>%
+      recipe(Species ~.) %>%
+      step_select_forests(
+        all_predictors(),
+        outcome = "Species",
+        threshold = 0.5,
+        engine = 'aorsf'
+      )
+
+    prepped <- prep(rec)
+    selected <- juice(prepped)
+
+    expect_length(names(selected), 3)
+
+    # test selection by retaining features with scores in 90th percentile
+    rec <- iris %>%
+      recipe(Species ~.) %>%
+      step_select_forests(
+        all_predictors(),
+        outcome = "Species",
+        threshold = 0.9
+      )
+
+    prepped <- prep(rec)
+    selected <- juice(prepped)
+
+    expect_length(names(selected), 2)
+
+  }
+)
+
+
