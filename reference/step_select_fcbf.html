@@ -162,28 +162,7 @@ can be installed with BiocManager::install("FCBF")</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/recipes" class="external-link">recipes</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stevenpawley.github.io/colino">colino</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Load the example iris dataset</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a preprocessing recipe including FCBF</span></span></span>
-<span class="r-in"><span><span class="va">my_recipe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipe</a></span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>    <span class="fu">step_select_fcbf</span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/has_role.html" class="external-link">all_predictors</a></span><span class="op">(</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 1 package (<span style="color: #0000BB;">FCBF</span>) is needed for this step but is not installed.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> To install run: `install.packages("FCBF")`</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">prepped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="va">my_recipe</span>, <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in step_select_fcbf():</span> <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;"> in `step_select_fcbf()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `loadNamespace()`:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> there is no package called ‘FCBF’</span>
-<span class="r-in"><span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">prepped</span>, new_data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'prepped' not found</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">prepped</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'prepped' not found</span>
-</code></pre></div>
+
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
