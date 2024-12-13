@@ -113,7 +113,7 @@ The recipe will stop if all of `top_p`, `threshold` and `cutoff` are left
 unspecified.
 }
 \examples{
-\dontrun {
+\dontrun{
 library(recipes)
 
 data(cells, package = "modeldata")

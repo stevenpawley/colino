@@ -44,7 +44,7 @@
 #' unspecified.
 #'
 #' @examples
-#' \dontrun {
+#' \dontrun{
 #' library(recipes)
 #'
 #' data(cells, package = "modeldata")
