@@ -113,22 +113,22 @@ The recipe will stop if all of `top_p`, `threshold` and `cutoff` are left
 unspecified.
 }
 \examples{
+\dontrun {
 library(recipes)
 
 data(cells, package = "modeldata")
 
-rec <-
- recipe(class ~ ., data = cells[, -1]) \%>\%
- step_select_relief(
-   all_predictors(),
-   outcome = "class",
-   top_p = 10
- )
+rec <- recipe(class ~ ., data = cells[, -1]) \%>\%
+  step_select_relief(
+    all_predictors(),
+    outcome = "class",
+    top_p = 10
+  )
 
-prepped <- prep(rec)
-
-new_data <- bake(prepped, new_data = NULL)
-prepped
+  prepped <- prep(rec)
+  new_data <- bake(prepped, new_data = NULL)
+  prepped
+}
 }
 \concept{preprocessing}
 \concept{supervised_filter}
